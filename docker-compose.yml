@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  apache:
+    image: 'php:7.4-apache'
+    container_name: Router
+    restart: always
+    ports:
+      - '80:80'
+    volumes:
+      - .:/var/www/html
