@@ -11,11 +11,12 @@
         public static function status()
         {
             http_response_code(200);
-            $Response = [
-                'Message'=> "NotFound",
-                'data'=> "online"
+            $response = [
+                'Message'=> "Online",
+                'data'=> "Online"
             ];
     
-            $Response = json_encode($Response);
+            $response = json_encode($Response);
+            return $Response;
         }
     }

@@ -6,5 +6,5 @@
 
 use Controller\StatusController;
 
-    Route::get('status',[StatusController::class, 'status']);
+    Route::get('/status',[StatusController::class, 'status']);
 ?>

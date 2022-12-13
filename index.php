@@ -20,31 +20,31 @@
             $Response = json_encode($Response);
             echo $Response;
         } else{
-            $route = $_REQUEST["url"];
-            //Remove toute prefix
-            $route = str_replace('api/','' ,$route);
-    
-            //take request body
-            $bodyJson = file_get_contents('php://input');
-        
-            $method = $_SERVER["REQUEST_METHOD"];
-        
-            RouteParams::mountQuery($_REQUEST);
-            RouteParams::mountBody($bodyJson);
-            
-            if (array_key_exists($route,Route::fecthRouteList()[$method])){
-                $class = Route::fecthRouteList()[$method][$route][0];
-                $method = Route::fecthRouteList()[$method][$route][1];
-                echo call_user_func(array($class, $method)); 
-            } else {
-                http_response_code(404);
-                $Response = [
-                    'Message'=> "NotFound"
-                ];
-        
-                $Response = json_encode($Response);
-                echo $Response;
-            }
+            $route = $_SERVER["PATH_INFO"];
+           //Remove toute prefix
+           $route = str_replace('/api','' ,$route);
+
+           //take request body
+           $bodyJson = file_get_contents('php://input');
+
+           $method = $_SERVER["REQUEST_METHOD"];
+
+           RouteParams::mountQuery($_REQUEST);
+           RouteParams::mountBody($bodyJson);
+
+           if (array_key_exists($route,Route::fecthRouteList()[$method])){
+               $class = Route::fecthRouteList()[$method][$route][0];
+               $method = Route::fecthRouteList()[$method][$route][1];
+               echo call_user_func(array($class, $method));
+           } else {
+               http_response_code(404);
+               $Response = [
+                   'Message'=> "Route NotFound"
+               ];
+
+               $Response = json_encode($Response);
+               echo $Response;
+           }
         }
     } catch (Exception $e){
         http_response_code(500);
