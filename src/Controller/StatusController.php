@@ -2,7 +2,7 @@
 
     namespace Controller;
 
-    require_once('./Server/Routes/RouteParams.php');
+    // require_once('./Server/Routes/RouteParams.php');
     use Server\Routes\RouteParams;
     use src\Services\ProductService;
 
@@ -16,7 +16,26 @@
                 'data'=> "Online"
             ];
     
-            $response = json_encode($Response);
-            return $Response;
+            $response = json_encode($response);
+            return $response;
+        }
+
+        public static function testePost()
+        {
+            $pessoa = [
+                "id" => 1,
+                "nome" => "USU1",
+                "email" => "email",
+                "senha" => "senmha",
+                "status" => ["id" =>1, "descricao"=> "DESCRICAO"]
+            ];
+            http_response_code(200);
+            $response = [
+                'Message'=> "TESTE",
+                'data'=> $pessoa
+            ];
+    
+            $response = json_encode($response);
+            return $response;
         }
     }
