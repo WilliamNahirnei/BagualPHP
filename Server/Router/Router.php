@@ -5,12 +5,16 @@
     require_once('./Server/Routes/RouteParams.php');
     require_once('./Server/Constants/ServerMessage.php');
     require_once('./Server/Interface/InterfacePHPRequest.php');
-    
+    require_once('./Server/Constants/StatusCodes.php');
+    require_once('./Server/Router/Response.php');
+
     use Server\Routes\Route;
     use Server\Routes\RouteParams;
     use Config\Server;
     use Server\Constants\ServerMessage;
     use Server\Iterface\InterfacePHPRequest;
+    use Server\Constants\StatusCodes;
+    use Server\Router\Response;
 
     class Router implements InterfacePHPRequest{
 
@@ -18,9 +22,12 @@
          * string TotalRoute
          */
         private $totalRoute = '';
+
+        private Response $response;
         public function __construct() {
             header("Content-type: application/json; charset=utf-8");
             $this->setTotalRoute($_SERVER[self::REQUEST_URI]);
+            $this->setResponse(new Response());
 
         }
 
@@ -28,14 +35,9 @@
             try{
                 //take route prefix
                 $prefix = explode('/',$this->getTotalRoute())[1];
+
                 if(!empty(Server::PREFIX_API) && $prefix != Server::PREFIX_API){
-                    http_response_code(404);
-                    $response = [
-                        ServerMessage::MESSAGE => Server::PREFIX_API . " " . ServerMessage::NOT_FOUND,
-                    ];
-            
-                    $response = json_encode($response);
-                    echo $response;
+                    $this->defineNotFoundResponse(Server::PREFIX_API);
                 } else{
                     $route = $_SERVER[self::PATH_INFO];
                    //Remove route prefix
@@ -54,21 +56,42 @@
                    if (array_key_exists($route,Route::fecthRouteList()[$method])){
                        $class = Route::fecthRouteList()[$method][$route][0];
                        $method = Route::fecthRouteList()[$method][$route][1];
-                       echo call_user_func(array($class, $method));
+                       $this->getResponse()->setResponseContent(call_user_func(array($class, $method)));
                    } else {
-                       http_response_code(404);
-                       $response = [
-                        ServerMessage::MESSAGE => ServerMessage::ROUTE . " " . ServerMessage::NOT_FOUND,
-                       ];
-        
-                       $response = json_encode($response);
-                       echo $response;
+                    $this->defineNotFoundResponse(ServerMessage::ROUTE);
                    }
                 }
+
             } catch (\Throwable $e){
-                http_response_code(500);
-                echo json_encode([ServerMessage::MESSAGE => ServerMessage::INTERNAL_SERVER_ERRO . $e]);
+                $this->defineInternalErrorResponse($e);
             }
+
+            $this->sendResponse();
+        }
+
+        public function defineNotFoundResponse(string $resourceNotFounded) {
+            $this->defineResponse($this->generateNotFoundMessage($resourceNotFounded), StatusCodes::HTTP_NOT_FOUND);
+        }
+
+        public function defineInternalErrorResponse($error) {
+            $this->defineResponse($this->generateInternalErrorMessage($error), StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        public function defineResponse(string $responseMessage, int $statusCode) {
+            $this->getResponse()->setStatusCode($statusCode);
+            $this->getResponse()->setResponseMessage($responseMessage);
+        }
+
+        private function generateNotFoundMessage(string $resourceNotFounded) : string {
+            return $resourceNotFounded . " " . ServerMessage::NOT_FOUND;
+        }
+
+        private function generateInternalErrorMessage($error) : string {
+            return ServerMessage::INTERNAL_SERVER_ERRO . $error;
+        }
+
+        private function sendResponse(){
+            echo $this->getResponse()->generateServerResponse();
         }
 
         private function setTotalRoute(string $totalRoute) {
@@ -77,6 +100,14 @@
 
         private function getTotalRoute() {
             return $this->totalRoute;
+        }
+
+        private function setResponse(Response $response) {
+            $this->response = $response;
+        }
+
+        private function getResponse() : Response {
+            return $this->response;
         }
     }
 
