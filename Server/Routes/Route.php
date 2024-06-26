@@ -1,34 +1,35 @@
 <?php
-    namespace Server\Routes;
-    include_once('Server/Interface/InterfaceRequestMethods.php');
-    use Server\Iterface\InterfaceRequestMethods;
-    class Route implements InterfaceRequestMethods {
+namespace Server\Routes;
 
-        private static $allRoutesRoutesFunctions = [
-            self::METHOD_GET    => [],
-            self::METHOD_POST   => [],
-            self::METHOD_PUT    => [],
-            self::METHOD_DELETE => []
-        ];
+use Server\Interfaces\InterfaceRequestMethods;
 
-        public static function get($routeUri, $functionReference) {
-            self::$allRoutesRoutesFunctions[self::METHOD_GET][$routeUri] = $functionReference;
-        }
+class Route implements InterfaceRequestMethods {
 
-        public static function post($routeUri, $functionReference) {
-            self::$allRoutesRoutesFunctions[self::METHOD_POST][$routeUri] = $functionReference;
-        }
+    private static $allRoutesRoutesFunctions = [
+        self::METHOD_GET    => [],
+        self::METHOD_POST   => [],
+        self::METHOD_PUT    => [],
+        self::METHOD_DELETE => []
+    ];
 
-        public static function put($routeUri, $functionReference) {
-            self::$allRoutesRoutesFunctions[self::METHOD_PUT][$routeUri] = $functionReference;
-        }
-
-        public static function delete($routeUri, $functionReference) {
-            self::$allRoutesRoutesFunctions[self::METHOD_DELETE][$routeUri] = $functionReference;
-        }
-
-        public static function fecthRouteList(){
-            return self::$allRoutesRoutesFunctions;
-        }
-
+    public static function get($routeUri, $functionReference) {
+        self::$allRoutesRoutesFunctions[self::METHOD_GET][$routeUri] = $functionReference;
     }
+
+    public static function post($routeUri, $functionReference) {
+        self::$allRoutesRoutesFunctions[self::METHOD_POST][$routeUri] = $functionReference;
+    }
+
+    public static function put($routeUri, $functionReference) {
+        self::$allRoutesRoutesFunctions[self::METHOD_PUT][$routeUri] = $functionReference;
+    }
+
+    public static function delete($routeUri, $functionReference) {
+        self::$allRoutesRoutesFunctions[self::METHOD_DELETE][$routeUri] = $functionReference;
+    }
+
+    public static function fecthRouteList(){
+        return self::$allRoutesRoutesFunctions;
+    }
+}
+?>

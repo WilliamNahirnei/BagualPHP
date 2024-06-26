@@ -1,12 +1,6 @@
 <?php
 
-    namespace Controller;
-
-    // require_once('./Server/Routes/RouteParams.php');
-
-use Server\Router\Response;
-use Server\Routes\RouteParams;
-    use src\Services\ProductService;
+    namespace src\Controller;
 
     class StatusController
     {

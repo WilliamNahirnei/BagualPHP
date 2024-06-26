@@ -1,9 +1,10 @@
 <?php
-    namespace Server\Iterface;
+namespace Server\Interfaces;
+
 interface InterfacePHPRequest
 {
     public const PHP_SELF = 'PHP_SELF';
-    public const ARGV ='argv';
+    public const ARGV = 'argv';
     public const ARGC = 'argc';
     public const GATEWAY_INTERFACE = 'GATEWAY_INTERFACE';
     public const SERVER_ADDR = 'SERVER_ADDR';
@@ -34,6 +35,5 @@ interface InterfacePHPRequest
     public const AUTH_TYPE = 'AUTH_TYPE';
     public const PATH_INFO = 'PATH_INFO';
     public const ORIG_PATH_INFO = 'ORIG_PATH_INFO';
-
 }
 ?>

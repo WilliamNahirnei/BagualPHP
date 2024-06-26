@@ -1,12 +1,8 @@
 <?php
     namespace Server\Router;
 
-    require_once('./Server/Interface/InterfaceDefaultValuesResponse.php');
-    require_once('./Server/Interface/InterfaceResponseContent.php');
-
-
-    use Server\Iterface\InterfaceDefaultValuesResponse;
-    use Server\Iterface\InterfaceResponseContent;
+    use Server\Interfaces\InterfaceDefaultValuesResponse;
+    use Server\Interfaces\InterfaceResponseContent;
 
     class Response implements InterfaceDefaultValuesResponse, InterfaceResponseContent{
         private static int $statusCode = self::DEFAULT_STATUS_CODE;

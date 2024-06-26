@@ -1,5 +1,5 @@
 <?php
-    namespace Server\Iterface;
+    namespace Server\Interfaces;
 interface InterfaceRequestMethods
 {
     public const METHOD_GET = "GET";
