@@ -1,23 +1,28 @@
 <?php
 namespace Server\Router;
 
-require_once('./Server/Routes/api.php');
+// require_once('./Server/Routing/api.php');
 
-use Server\Routes\Route;
-use Server\Routes\RouteParams;
+use Server\Routing\Route;
 use Config\Server;
+use Server\Constants\ApiExceptionTypes;
 use Server\Constants\ServerMessage;
 use Server\Interfaces\InterfacePHPRequest;
 use Server\Constants\StatusCodes;
+use Server\Interfaces\InterfaceRequestMethods;
 use Server\Router\Response;
+use Server\Errors\ApiException;
+use Server\Routing\ApiManager;
 
-class Router implements InterfacePHPRequest
+class Router implements InterfacePHPRequest, InterfaceRequestMethods
 {
     private string $totalRoute = '';
 
     private string $route = '';
 
     private string $requestMethod;
+
+    private Request $request;
 
     private Response $response;
 
@@ -29,17 +34,24 @@ class Router implements InterfacePHPRequest
 
     public function executeRequest() {
         try {
-            if ($this->invalidPrefixRoute()) {
-                $this->defineNotFoundResponse(Server::PREFIX_API);
-            } else {
-                $this->defineRequestData();
-                $this->processRequest();
-            }
+            $this->validadePrefixRoute();
+            $this->defineRequestData();
+            $this->processRequest();
         } catch (\Throwable $e) {
-            $this->defineInternalErrorResponse($e);
+            if ($e instanceof ApiException) {
+                $this->defineApiExceptionErrorResponse($e);
+            } else {
+                $this->defineInternalErrorResponse($e);
+            }
         }
 
         $this->sendResponse();
+    }
+
+    private function validadePrefixRoute() {
+        if ($this->invalidPrefixRoute()) {
+            throw new ApiException(true, ApiExceptionTypes::ERROR, [$this->generateNotFoundMessage(Server::PREFIX_API)], StatusCodes::HTTP_NOT_FOUND);
+        }
     }
 
     private function invalidPrefixRoute() {
@@ -49,7 +61,7 @@ class Router implements InterfacePHPRequest
 
     private function defineRequestData() {
         $this->defineTreatedRoute();
-        $this->mouteParams();
+        $this->mouteRequestInstance();
         $this->defineRequestMethod();
     }
 
@@ -62,12 +74,8 @@ class Router implements InterfacePHPRequest
         $this->setRoute($route);
     }
 
-    private function mouteParams() {
-        //take request body
-        $bodyJson = file_get_contents('php://input');
-
-        RouteParams::mountQuery($_REQUEST);
-        RouteParams::mountBody($bodyJson);
+    private function mouteRequestInstance() {
+        $this->request = Request::getInstance();
     }
 
     private function defineRequestMethod() {
@@ -75,10 +83,15 @@ class Router implements InterfacePHPRequest
     }
 
     private function processRequest() {
+        $apiManager = new ApiManager();
+        $apiManager->loadApiEndpoints();
         if ($this->apiRouteIsDefined()) {
+            if ($_SERVER[self::REQUEST_METHOD] === self::METHOD_OPTIONS) {
+                return;
+            }
             $this->getResponse()->setResponseContent($this->callControllerMethodRoute());
         } else {
-            $this->defineNotFoundResponse(ServerMessage::ROUTE);
+            throw new ApiException(true, ApiExceptionTypes::ERROR, [$this->generateNotFoundMessage(ServerMessage::ROUTE)], StatusCodes::HTTP_NOT_FOUND);
         }
     }
 
@@ -92,11 +105,11 @@ class Router implements InterfacePHPRequest
     }
 
     private function getControllerRoute() {
-        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()][0];
+        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()]->getControllerClass();
     }
 
     private function getMethodControllerRoute() {
-        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()][1];
+        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()]->getControllerMethod();
     }
 
     private function getPrefixInRoute() {
@@ -104,15 +117,26 @@ class Router implements InterfacePHPRequest
     }
 
     private function apiRouteIsDefined() {
+        if ($_SERVER[self::REQUEST_METHOD] === self::METHOD_OPTIONS) {
+            $route = $this->getRoute();
+            $routeList = Route::fecthRouteList();
+            var_export($routeList);
+            
+            return (isset($routeList[self::METHOD_POST]) && isset($routeList[self::METHOD_POST][$route])) ||
+                   (isset($routeList[self::METHOD_PUT]) && isset($routeList[self::METHOD_PUT][$route])) ||
+                   (isset($routeList[self::METHOD_DELETE]) && isset($routeList[self::METHOD_DELETE][$route]));
+        }
+    
+        // Caso contrário, verifica se a rota está definida normalmente
         return array_key_exists($this->getRoute(), Route::fecthRouteList()[$this->getRequestMethod()]);
-    }
-
-    public function defineNotFoundResponse(string $resourceNotFounded) {
-        $this->defineResponse($this->generateNotFoundMessage($resourceNotFounded), StatusCodes::HTTP_NOT_FOUND);
     }
 
     public function defineInternalErrorResponse($error) {
         $this->defineResponse($this->generateInternalErrorMessage($error), StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function defineApiExceptionErrorResponse(ApiException $apiException) {
+        $this->defineResponse($apiException->getMessage(), $apiException->getCode());
     }
 
     public function defineResponse(string $responseMessage, int $statusCode) {

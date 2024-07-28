@@ -8,7 +8,7 @@
         private static int $statusCode = self::DEFAULT_STATUS_CODE;
 
         private $responseContent = self::DEFAULT_CONTENT;
-        private string $responseMessage = self::DEFAULT_MESSAGE;
+        private static string $responseMessage = self::DEFAULT_MESSAGE;
 
 
         public static function setStatusCode(int $statusCode) {
@@ -24,23 +24,23 @@
             return $this->responseContent;
         }
 
-        public function setResponseMessage(string $responseMessage) {  
-            $this->responseMessage = $responseMessage;
+        public static function setResponseMessage(string $responseMessage) {  
+            self::$responseMessage = $responseMessage;
         }
-        public function getResponseMessage() {
-            return $this->responseMessage;
+        public static function getResponseMessage() {
+            return self::$responseMessage;
         }
 
         public function mountCompleteResponse() {
             return [
-                self::RESPONSE_MESSAGE => $this->getResponseMessage(),
+                self::RESPONSE_MESSAGE => $this::getResponseMessage(),
                 self::RESPONSE_DATA => $this->getResponseContent(),
             ];
         }
 
         public function generateServerResponse() {
             http_response_code(self::getStatusCode());
-            return json_encode($this->mountCompleteResponse());
+            return json_encode($this->mountCompleteResponse(),true);
         }
 
     }
