@@ -40,17 +40,18 @@ Este projeto é uma biblioteca PHP projetada para facilitar o roteamento e o ger
 ### Estrutura do Projeto
 
 A estrutura do projeto deve seguir o seguinte formato:
+```
 
-src/
-│
-├── Modules/
-│ ├── ModuloExemplo/
-│ │ ├── Api.php
-│ │ └── ... (outros arquivos do módulo)
-│ └── ... (outros módulos)
-└── ... (outros diretórios e arquivos)
+    src/
+    │
+    ├── Modules/
+    │ ├── ModuloExemplo/
+    │ │ ├── Api.php
+    │ │ └── ... (outros arquivos do módulo)
+    │ └── ... (outros módulos)
+    └── ... (outros diretórios e arquivos)
 
-markdown
+```
 
 
 Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para determinar os endpoints e configurar as rotas.
