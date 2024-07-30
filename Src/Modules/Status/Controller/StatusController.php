@@ -8,7 +8,6 @@ class StatusController
 {
     public static function status()
     {
-        var_export("HERE CALLED");
         return ['status' => "online"];
     }
 
@@ -22,7 +21,6 @@ class StatusController
             "senha" => "senmha",
             "status" => ["id" => 1, "descricao" => "DESCRICAO"]
         ];
-        var_export(Request::getInstance());
 
         return $pessoa;
     }

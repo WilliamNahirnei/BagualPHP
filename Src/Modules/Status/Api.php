@@ -1,7 +1,8 @@
 <?php
     namespace Src\Modules\Status;
     use Server\Routing\AbstractApi;
-    use Src\Modules\Status\Controller\StatusController;
+use Src\Auth\GeneralAuth;
+use Src\Modules\Status\Controller\StatusController;
 
     class Api extends AbstractApi {
         protected ?string $moduleName = "status";
@@ -15,10 +16,9 @@
                 $this->defaultAuthMethod
             );
         }
-        public function defineEndpointList() {
-            $this->addEndpoint(static::METHOD_GET, null, StatusController::class, "status");
-            $this->addEndpoint(static::METHOD_POST, "testePost", StatusController::class, "testePost");
-
+        public function defineEndpointList(): void {
+            $this->addEndpoint(static::METHOD_GET, null, StatusController::class, "status", GeneralAuth::class, "teste1");
+            $this->addEndpoint(static::METHOD_POST, "testePost", StatusController::class, "testePost", GeneralAuth::class, "teste2");
         }
 
     }

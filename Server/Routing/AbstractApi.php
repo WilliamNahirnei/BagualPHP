@@ -31,7 +31,7 @@ abstract class AbstractApi implements InterfaceRequestMethods {
         string $controllerMethod, 
         ?string $authClass = null, 
         ?string $authMethod = null
-    ) {
+    ): void {
         $endpoint = new Endpoint(
             $requestType,
             $this->defineEndpointUri($endpoint),
@@ -51,6 +51,6 @@ abstract class AbstractApi implements InterfaceRequestMethods {
         return $endpointUri;
     }
 
-    protected abstract function defineEndpointList();
+    protected abstract function defineEndpointList(): void;
 }
 ?>

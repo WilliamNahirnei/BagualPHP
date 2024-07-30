@@ -28,11 +28,14 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
 
     public function __construct() {
         header("Content-type: application/json; charset=utf-8");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
         $this->setTotalRoute($_SERVER[self::REQUEST_URI]);
         $this->setResponse(new Response());
     }
 
-    public function executeRequest() {
+    public function executeRequest(): void {
         try {
             $this->validadePrefixRoute();
             $this->defineRequestData();
@@ -48,24 +51,24 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
         $this->sendResponse();
     }
 
-    private function validadePrefixRoute() {
+    private function validadePrefixRoute(): void {
         if ($this->invalidPrefixRoute()) {
             throw new ApiException(true, ApiExceptionTypes::ERROR, [$this->generateNotFoundMessage(Server::PREFIX_API)], StatusCodes::HTTP_NOT_FOUND);
         }
     }
 
-    private function invalidPrefixRoute() {
+    private function invalidPrefixRoute(): bool {
         $prefix = $this->getPrefixInRoute();
         return (!empty(Server::PREFIX_API) && $prefix != Server::PREFIX_API);
     }
 
-    private function defineRequestData() {
+    private function defineRequestData(): void {
         $this->defineTreatedRoute();
         $this->mouteRequestInstance();
         $this->defineRequestMethod();
     }
 
-    private function defineTreatedRoute() {
+    private function defineTreatedRoute(): void {
         $route = $_SERVER[self::PATH_INFO];
         //Remove route prefix
         if (!empty(Server::PREFIX_API)) {
@@ -74,15 +77,15 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
         $this->setRoute($route);
     }
 
-    private function mouteRequestInstance() {
+    private function mouteRequestInstance():void {
         $this->request = Request::getInstance();
     }
 
-    private function defineRequestMethod() {
+    private function defineRequestMethod():void {
         $this->setRequestMethod($_SERVER[self::REQUEST_METHOD]);
     }
 
-    private function processRequest() {
+    private function processRequest():void {
         $apiManager = new ApiManager();
         $apiManager->loadApiEndpoints();
         if ($this->apiRouteIsDefined()) {
@@ -96,50 +99,35 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
     }
 
     private function callControllerMethodRoute() {
-        return call_user_func(
-            [
-                $this->getControllerRoute(),
-                $this->getMethodControllerRoute()
-            ]
-        );
+        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()]->executeEndpoint();
     }
 
-    private function getControllerRoute() {
-        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()]->getControllerClass();
-    }
-
-    private function getMethodControllerRoute() {
-        return Route::fecthRouteList()[$this->getRequestMethod()][$this->getRoute()]->getControllerMethod();
-    }
-
-    private function getPrefixInRoute() {
+    private function getPrefixInRoute(): ?string {
         return explode('/',$this->getTotalRoute())[1];
     }
 
-    private function apiRouteIsDefined() {
+    private function apiRouteIsDefined(): bool {
         if ($_SERVER[self::REQUEST_METHOD] === self::METHOD_OPTIONS) {
             $route = $this->getRoute();
             $routeList = Route::fecthRouteList();
-            var_export($routeList);
             
             return (isset($routeList[self::METHOD_POST]) && isset($routeList[self::METHOD_POST][$route])) ||
                    (isset($routeList[self::METHOD_PUT]) && isset($routeList[self::METHOD_PUT][$route])) ||
                    (isset($routeList[self::METHOD_DELETE]) && isset($routeList[self::METHOD_DELETE][$route]));
         }
     
-        // Caso contrário, verifica se a rota está definida normalmente
         return array_key_exists($this->getRoute(), Route::fecthRouteList()[$this->getRequestMethod()]);
     }
 
-    public function defineInternalErrorResponse($error) {
+    public function defineInternalErrorResponse($error): void {
         $this->defineResponse($this->generateInternalErrorMessage($error), StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-    public function defineApiExceptionErrorResponse(ApiException $apiException) {
+    public function defineApiExceptionErrorResponse(ApiException $apiException): void {
         $this->defineResponse($apiException->getMessage(), $apiException->getCode());
     }
 
-    public function defineResponse(string $responseMessage, int $statusCode) {
+    public function defineResponse(string $responseMessage, int $statusCode): void {
         $this->getResponse()->setStatusCode($statusCode);
         $this->getResponse()->setResponseMessage($responseMessage);
     }
@@ -152,35 +140,35 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
         return ServerMessage::INTERNAL_SERVER_ERRO . $error;
     }
 
-    private function sendResponse() {
+    private function sendResponse(): void {
         echo $this->getResponse()->generateServerResponse();
     }
 
-    private function setTotalRoute(string $totalRoute) {
+    private function setTotalRoute(string $totalRoute): void {
         $this->totalRoute = $totalRoute;
     }
 
-    private function getTotalRoute() {
+    private function getTotalRoute(): string {
         return $this->totalRoute;
     }
 
-    private function setRoute(string $route) {
+    private function setRoute(string $route): void {
         $this->route = $route;
     }
 
-    private function getRoute() {
+    private function getRoute(): string {
         return $this->route;
     }
 
-    private function setRequestMethod(string $requestMethod) {
+    private function setRequestMethod(string $requestMethod): void {
         $this->requestMethod = $requestMethod;
     }
 
-    private function getRequestMethod() {
+    private function getRequestMethod(): string {
         return $this->requestMethod;
     }
 
-    private function setResponse(Response $response) {
+    private function setResponse(Response $response): void {
         $this->response = $response;
     }
 

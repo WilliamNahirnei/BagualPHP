@@ -2,7 +2,12 @@
 
 namespace Server\Routing;
 
+use Server\Auth\AbstractAuthenticable;
+use Server\Errors\AuthenticationException;
+use Server\Suport\TraitSuportValidationClass;
+
 class Endpoint {
+    use TraitSuportValidationClass;
     private string $requestType;
     private string $endpoint;
     private string $controllerClass;
@@ -48,6 +53,53 @@ class Endpoint {
 
     public function getAuthMethod(): ?string {
         return $this->authMethod;
+    }
+
+    public function executeEndpoint() {
+        $this->authenticate();
+        $this->validateExistenceEndpointExecutable();
+        return call_user_func(
+            [
+                $this->getControllerClass(),
+                $this->getControllerMethod()
+            ]
+        );
+    }
+
+    private function authenticate(): bool {
+        if(empty($this->getAuthClass()) || empty($this->getAuthMethod())) {
+            return true;
+        }
+
+        $this->validateExistenceAuthenticationDefined();
+        $this->authClassIAutenticatle();
+
+        $autenthicated = call_user_func(
+            [
+                $this->getAuthClass(),
+                $this->getAuthMethod()
+            ]
+        );
+        if (!$autenthicated) {
+            throw new AuthenticationException();
+        }
+        return true;
+    }
+
+    private function validateExistenceAuthenticationDefined(): void {
+        $this->classExists($this->getAuthClass());
+        $this->methodExists($this->getAuthClass(), $this->getAuthMethod());
+    }
+
+    private function validateExistenceEndpointExecutable(): void {
+        $this->classExists($this->getControllerClass());
+        $this->methodExists($this->getControllerClass(), $this->getControllerMethod());
+    }
+
+    private function authClassIAutenticatle(){
+        $this->classExtends($this->getAuthClass(), AbstractAuthenticable::class);
+        $this->methodIsStatic($this->getAuthClass(), $this->getAuthMethod());
+        $this->methodHasNoParameters($this->getAuthClass(), $this->getAuthMethod());
     }
 }
 ?>

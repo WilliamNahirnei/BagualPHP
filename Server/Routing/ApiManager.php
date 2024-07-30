@@ -9,7 +9,7 @@ class ApiManager {
     private const API_METHOD = 'defineEndpointList';
     private const BASE_NAMESPACE = 'Src\\Modules';
 
-    public function loadApiEndpoints() {
+    public function loadApiEndpoints(): void {
         $modulesDirectory = realpath(__DIR__ . self::MODULES_PATH);
         $moduleDirs = glob($modulesDirectory . '/*', GLOB_ONLYDIR);
 

@@ -13,23 +13,23 @@ class Route implements InterfaceRequestMethods {
 
     ];
 
-    public static function get(Endpoint $endpoint) {
+    public static function get(Endpoint $endpoint): void {
         self::$allRoutesRoutesFunctions[self::METHOD_GET][$endpoint->getEndpoint()] = $endpoint;
     }
 
-    public static function post(Endpoint $endpoint) {
+    public static function post(Endpoint $endpoint): void {
         self::$allRoutesRoutesFunctions[self::METHOD_POST][$endpoint->getEndpoint()] = $endpoint;
     }
 
-    public static function put(Endpoint $endpoint) {
+    public static function put(Endpoint $endpoint): void {
         self::$allRoutesRoutesFunctions[self::METHOD_PUT][$endpoint->getEndpoint()] = $endpoint;
     }
 
-    public static function delete(Endpoint $endpoint) {
+    public static function delete(Endpoint $endpoint): void {
         self::$allRoutesRoutesFunctions[self::METHOD_DELETE][$endpoint->getEndpoint()] = $endpoint;
     }
 
-    public static function fecthRouteList(){
+    public static function fecthRouteList(): array{
         return self::$allRoutesRoutesFunctions;
     }
 }

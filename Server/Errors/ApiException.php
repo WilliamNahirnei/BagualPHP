@@ -1,6 +1,7 @@
 <?php
 namespace Server\Errors;
 
+use Server\Constants\ApiExceptionTypes;
 use Server\Constants\StatusCodes;
 
 class ApiException extends \Exception {
@@ -9,11 +10,11 @@ class ApiException extends \Exception {
     private string $errorListMessage;
     private int $restCode;
 
-    public function __construct(bool $accept = true, string $type = 'error', array $errorListMessage = [], int $restCode = StatusCodes::HTTP_INTERNAL_SERVER_ERROR) {
-        $this->setAccept($accept);
-        $this->setType($type);
-        $this->setErrorListMessage($errorListMessage);
-        $this->setRestCode($restCode);
+    public function __construct(?bool $accept = null, ?string $type = null, ?array $errorListMessage = null, ?int $restCode = null) {
+        $this->setAccept($accept ?? true);
+        $this->setType($type ?? ApiExceptionTypes::ERROR);
+        $this->setErrorListMessage($errorListMessage ?? []);
+        $this->setRestCode($restCode ?? StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
         
         parent::__construct($this->errorListMessage, $this->restCode);
     }
@@ -36,22 +37,22 @@ class ApiException extends \Exception {
     }
 
     // Setters
-    private function setAccept(bool $accept): self {
+    protected function setAccept(bool $accept): self {
         $this->accept = $accept;
         return $this;
     }
 
-    private function setType(string $type): self {
+    protected function setType(string $type): self {
         $this->type = $type;
         return $this;
     }
 
-    private function setErrorListMessage(array $errorListMessage): self {
+    protected function setErrorListMessage(array $errorListMessage): self {
         $this->errorListMessage = implode("|", $errorListMessage);
         return $this;
     }
 
-    private function setRestCode(int $restCode): self {
+    protected function setRestCode(int $restCode): self {
         $this->restCode = $restCode;
         return $this;
     }
