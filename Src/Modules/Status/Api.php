@@ -1,8 +1,8 @@
 <?php
     namespace Src\Modules\Status;
     use Server\Routing\AbstractApi;
-use Src\Auth\GeneralAuth;
-use Src\Modules\Status\Controller\StatusController;
+    use Src\Auth\GeneralAuth;
+    use Src\Modules\Status\Controller\StatusController;
 
     class Api extends AbstractApi {
         protected ?string $moduleName = "status";
