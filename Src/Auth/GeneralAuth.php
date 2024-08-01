@@ -20,7 +20,8 @@ class GeneralAuth extends AbstractAuthenticable{
     }
 
     public static function teste2() {
-        self::callAuthError();
+        return true;
+        // self::callAuthError();
     }
 }
 ?>

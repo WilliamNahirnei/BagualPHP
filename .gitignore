@@ -1,2 +1,4 @@
 /.idea
-/MySQL
+docs
+gerarDocs.sh
+.phpdoc/

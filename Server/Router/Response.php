@@ -2,16 +2,17 @@
 namespace Server\Router;
 
 use Server\Interfaces\InterfaceDefaultValuesResponse;
+use Server\Interfaces\InterfaceHeaders;
 use Server\Interfaces\InterfaceResponseContent;
 
 /**
  * Class Response
  * 
- * This class handles the server response including status code, response content, and response message.
+ * This class handles the server response including status code, response content, response message, and headers.
  *
  * @package Server\Router
  */
-class Response implements InterfaceDefaultValuesResponse, InterfaceResponseContent {
+class Response implements InterfaceDefaultValuesResponse, InterfaceResponseContent, InterfaceHeaders {
     /**
      * @var int The HTTP status code for the response.
      */
@@ -26,6 +27,11 @@ class Response implements InterfaceDefaultValuesResponse, InterfaceResponseConte
      * @var string The message associated with the response.
      */
     private static string $responseMessage = self::DEFAULT_MESSAGE;
+
+    /**
+     * @var array The headers to be sent with the response.
+     */
+    private static array $headers = [];
 
     /**
      * Sets the HTTP status code for the response.
@@ -85,6 +91,34 @@ class Response implements InterfaceDefaultValuesResponse, InterfaceResponseConte
     }
 
     /**
+     * Adds a header to the response. If the header already exists, it appends the value.
+     *
+     * @param string $header The name of the header.
+     * @param string $value The value of the header.
+     * @return void
+     */
+    public static function addHeader(string $header, string $value): void {
+        if (isset(self::$headers[$header])) {
+            self::$headers[$header][] = $value;
+        } else {
+            self::$headers[$header] = [$value];
+        }
+    }
+
+    /**
+     * Sends all headers set for the response.
+     *
+     * @return void
+     */
+    private static function defineHeaders(): void {
+        foreach (self::$headers as $header => $values) {
+            foreach ($values as $value) {
+                header("$header: $value", false); // false ensures headers are not replaced
+            }
+        }
+    }
+
+    /**
      * Mounts the complete response including message and data.
      *
      * @return array The complete response as an array.
@@ -103,6 +137,7 @@ class Response implements InterfaceDefaultValuesResponse, InterfaceResponseConte
      */
     public function generateServerResponse(): string {
         http_response_code(self::getStatusCode());
+        self::defineHeaders();
         return json_encode($this->mountCompleteResponse(), true);
     }
 }
