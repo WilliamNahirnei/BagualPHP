@@ -10,7 +10,7 @@ Este projeto é uma biblioteca PHP projetada para facilitar o roteamento e o ger
 - **Requisições**: Manipula dados de requisições HTTP, incluindo parâmetros de consulta, corpo da requisição e cabeçalhos.
 - **Respostas**: Gera e envia respostas HTTP com códigos de status e mensagens apropriadas.
 - **Autenticação**: Implementa uma estrutura básica de autenticação.
-- **Errores**: Gerencia exceções e erros, fornecendo mensagens e códigos de status apropriados.
+- **Erros**: Gerencia exceções e erros, fornecendo mensagens e códigos de status apropriados.
 
 ## Requisitos
 
