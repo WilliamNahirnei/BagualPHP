@@ -2,7 +2,6 @@
 namespace Server\Router;
 
 use Server\Routing\Route;
-use Config\Server;
 use Server\Constants\ApiExceptionTypes;
 use Server\Constants\ServerMessage;
 use Server\Interfaces\InterfacePHPRequest;
@@ -37,6 +36,8 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
      */
     private string $requestMethod;
 
+    private RouterConfig $routerConfig;
+
     /**
      * @var Request The request instance.
      */
@@ -55,6 +56,8 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
         header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+        $this->setRouterConfig(RouterConfig::getInstance());
         $this->setTotalRoute($_SERVER[self::REQUEST_URI]);
         $this->setResponse(new Response());
     }
@@ -88,7 +91,7 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
      */
     private function validadePrefixRoute(): void {
         if ($this->invalidPrefixRoute()) {
-            throw new ApiException(true, ApiExceptionTypes::ERROR, [$this->generateNotFoundMessage(Server::PREFIX_API)], StatusCodes::HTTP_NOT_FOUND);
+            throw new ApiException(true, ApiExceptionTypes::ERROR, [$this->generateNotFoundMessage($this->getRouterConfig()->getConfig(RouterConfig::PREFIX_API))], StatusCodes::HTTP_NOT_FOUND);
         }
     }
 
@@ -99,7 +102,7 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
      */
     private function invalidPrefixRoute(): bool {
         $prefix = $this->getPrefixInRoute();
-        return (!empty(Server::PREFIX_API) && $prefix != Server::PREFIX_API);
+        return (!empty($this->getRouterConfig()->getConfig(RouterConfig::PREFIX_API)) && $prefix != $this->getRouterConfig()->getConfig(RouterConfig::PREFIX_API));
     }
 
     /**
@@ -121,8 +124,8 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
     private function defineTreatedRoute(): void {
         $route = $_SERVER[self::PATH_INFO];
         // Remove route prefix
-        if (!empty(Server::PREFIX_API)) {
-            $route = str_replace('/' . Server::PREFIX_API, '', $route);
+        if (!empty($this->getRouterConfig()->getConfig(RouterConfig::PREFIX_API))) {
+            $route = str_replace('/' . $this->getRouterConfig()->getConfig(RouterConfig::PREFIX_API), '', $route);
         }
         $this->setRoute($route);
     }
@@ -336,5 +339,25 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
     private function getResponse(): Response {
         return $this->response;
     }
+
+    /**
+     * Sets the router config.
+     *
+     * @param RouterConfig $routerConfig The router config.
+     * @return void
+     */
+    private function setRouterConfig(RouterConfig $routerConfig): void {
+        $this->routerConfig = $routerConfig;
+    }
+
+    /**
+     * Gets the router config.
+     *
+     * @return RouterConfig The routerConfig.
+     */
+    private function getRouterConfig(): RouterConfig {
+        return $this->routerConfig;
+    }
+    
 }
 ?>
