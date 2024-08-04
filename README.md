@@ -62,13 +62,14 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
 1. **Defina seus módulos:** Crie um diretório para cada módulo em `src/Modules/`. Cada módulo deve ter um arquivo `Api.php` que define os endpoints para esse módulo.
 
 2. **Configure os Endpoints:** No arquivo `Api.php`, defina os endpoints e métodos que serão usados pelo seu projeto. A framework irá ler esses arquivos para configurar as rotas de forma automática.
-    O arquivo Api.php devera extender de Server\Routing\AbstractApi. Defina os atributos e o construtor.
-    O atributo modulename, define um nome default no modulo, caso não defina uma rota para os endpoints, o framework ira assumir o nome do modulo como rota "http://localhost:8080/usuario".
-    O atributo defaultAuthClass e defaultAuthMethod devem ser definidos para especificar uma  classe e metodo de autenticação para o modul, ao endpoint ser acionado o framework ira autenticar conforme a classe e metodo definidos.
+
+    - **Api.php**: O arquivo Api.php devera extender de Server\Routing\AbstractApi. Defina os atributos e o construtor.
+    - **moduleName**: O atributo modulename, define um nome default no modulo, caso não defina uma rota para os endpoints, o framework ira assumir o nome do modulo como rota "http://localhost:8080/usuario".
+    - **defaultAuthClass**: O atributo defaultAuthClass e defaultAuthMethod devem ser definidos para especificar uma  classe e metodo de autenticação para o modulo, ao endpoint ser acionado o framework ira autenticar conforme a classe e metodo definidos.
     O atributo ignoreAuth, é usado para identificar se o modulo ira ignorar a autenticação definida seja nas configurações do sistema, modulo, ou endpoint.
-    Os endpoints são definidos no metodo defineEndpointList.
-    Cada enpoints é definido pela chamada do metodo addEndpoint(metodo[get, post, put, delete], "nomeEndpoint", Classe que ira responder a chamada, "nome do metodo que ira responder a chamada", classe de autenticação, "nome metodo autenticação", ignorar autenticação).
-    Os metodos de controller, e autenticação deverão ser staticos.
+    - **definindo endpoints**: Os endpoints são definidos no metodo defineEndpointList.
+    - **addEndpoint**: Cada enpoints é definido pela chamada do metodo addEndpoint(metodo[get, post, put, delete], "nomeEndpoint", Classe que ira responder a chamada, "nome do metodo que ira responder a chamada", classe de autenticação, "nome metodo autenticação", ignorar autenticação).
+    - **metodos de controlador e autenticação**: Os metodos de controller, e autenticação deverão ser staticos.
 
 
 ```php
