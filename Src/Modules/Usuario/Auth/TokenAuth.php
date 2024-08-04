@@ -12,6 +12,7 @@ use Server\Router\Request;
  * It validates the token provided in the request headers.
  *
  * @package Src\Modules\Usuario\Auth
+ * @author William Nahirnei Lopes
  */
 class TokenAuth extends AbstractAuthenticable {
 

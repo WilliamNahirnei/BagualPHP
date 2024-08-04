@@ -11,6 +11,7 @@ use stdClass;
  * This class handles the operations for the "usuario" module including listing, creating, updating, and deleting users.
  *
  * @package Src\Modules\Usuario\Controller
+ * @author William Nahirnei Lopes
  */
 class UsuarioController {
     /**

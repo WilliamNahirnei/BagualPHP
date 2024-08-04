@@ -8,6 +8,7 @@ namespace Server\Suport;
  * Provides various validation methods to check the existence, inheritance, and characteristics of classes and methods.
  * 
  * @package Server\Suport
+ * @author William Nahirnei Lopes
  */
 trait TraitSuportValidationClass {
     /**

@@ -8,6 +8,7 @@ namespace Server\Interfaces;
  * It is used to standardize and reference HTTP methods throughout the application.
  *
  * @package Server\Interfaces
+ * @author William Nahirnei Lopes
  */
 interface InterfaceRequestMethods
 {

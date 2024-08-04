@@ -12,6 +12,7 @@ use Src\Modules\Usuario\Controller\UsuarioController;
  * It extends the AbstractApi class and configures endpoints with their respective HTTP methods, controllers, and authentication.
  *
  * @package Src\Modules\Usuario
+ * @author William Nahirnei Lopes
  */
 class Api extends AbstractApi {
     /**

@@ -11,6 +11,7 @@ use Config\ConfigLoader;
  * It extends the ConfigLoader class and implements the Singleton pattern.
  *
  * @package Server\Auth
+ * @author William Nahirnei Lopes
  */
 class AuthConfig extends ConfigLoader {
     /**

@@ -10,6 +10,7 @@ use Server\Interfaces\InterfacePHPRequest;
  * It follows the singleton pattern to ensure only one instance is created.
  *
  * @package Server\Router
+ * @author William Nahirnei Lopes
  */
 class Request implements InterfacePHPRequest {
     /**

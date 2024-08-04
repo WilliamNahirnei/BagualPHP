@@ -11,6 +11,7 @@ use Server\Errors\AuthenticationException;
  * Subclasses must implement the authentication logic and handle authentication errors.
  *
  * @package Server\Auth
+ * @author William Nahirnei Lopes
  */
 abstract class AbstractAuthenticable {
 

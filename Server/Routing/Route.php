@@ -9,6 +9,7 @@ use Server\Interfaces\InterfaceRequestMethods;
  * Manages the registration and retrieval of routes for different HTTP methods.
  *
  * @package Server\Routing
+ * @author William Nahirnei Lopes
  */
 class Route implements InterfaceRequestMethods {
 

@@ -10,6 +10,7 @@ namespace Server\Constants;
  * server error responses.
  *
  * @package Server\Constants
+ * @author William Nahirnei Lopes
  */
 class StatusCodes {
 

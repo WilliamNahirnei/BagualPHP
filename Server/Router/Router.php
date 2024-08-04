@@ -18,6 +18,7 @@ use Server\Routing\ApiManager;
  * This class handles routing and request execution.
  *
  * @package Server\Router
+ * @author William Nahirnei Lopes
  */
 class Router implements InterfacePHPRequest, InterfaceRequestMethods
 {

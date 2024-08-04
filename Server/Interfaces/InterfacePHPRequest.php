@@ -8,6 +8,7 @@ namespace Server\Interfaces;
  * It provides a standardized way to access common server and request variables.
  *
  * @package Server\Interfaces
+ * @author William Nahirnei Lopes
  */
 interface InterfacePHPRequest
 {

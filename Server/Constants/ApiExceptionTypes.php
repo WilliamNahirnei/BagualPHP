@@ -9,6 +9,7 @@ namespace Server\Constants;
  * These types are used to categorize and handle various exception scenarios in the application.
  *
  * @package Server\Constants
+ * @author William Nahirnei Lopes
  */
 class ApiExceptionTypes {
 

@@ -9,6 +9,7 @@ namespace Server\Constants;
  * These messages are intended to provide standardized error and status information.
  *
  * @package Server\Constants
+ * @author William Nahirnei Lopes
  */
 class ServerMessage {
 

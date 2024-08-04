@@ -9,7 +9,8 @@ namespace Config;
  * It allows derived classes to specify the file path and the list of configuration keys by overriding constants.
  * It implements the Singleton pattern to ensure only one instance is created.
  *
- * @package Config
+ * @package Config.
+ * @author William Nahirnei Lopes
  */
 abstract class ConfigLoader {
 

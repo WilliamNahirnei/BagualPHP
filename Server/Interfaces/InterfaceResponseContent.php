@@ -8,6 +8,7 @@ namespace Server\Interfaces;
  * It is used to standardize the keys for response messages and data.
  *
  * @package Server\Interfaces
+ * @author William Nahirnei Lopes
  */
 interface InterfaceResponseContent
 {

@@ -12,6 +12,7 @@ use Server\Constants\StatusCodes;
  * from ApiException and provides default error messages and status codes specific to authentication issues.
  *
  * @package Server\Errors
+ * @author William Nahirnei Lopes 
  */
 class AuthenticationException extends ApiException {
     /**

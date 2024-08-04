@@ -11,6 +11,7 @@ use Server\Interfaces\InterfaceResponseContent;
  * This class handles the server response including status code, response content, response message, and headers.
  *
  * @package Server\Router
+ * @author William Nahirnei Lopes
  */
 class Response implements InterfaceDefaultValuesResponse, InterfaceResponseContent, InterfaceHeaders {
     /**

@@ -9,6 +9,7 @@ use Server\Interfaces\InterfaceRequestMethods;
  * This class provides a base implementation for defining API endpoints.
  * 
  * @package Server\Routing
+ * @author William Nahirnei Lopes
  */
 abstract class AbstractApi implements InterfaceRequestMethods {
     /**

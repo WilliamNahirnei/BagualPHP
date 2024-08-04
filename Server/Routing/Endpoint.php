@@ -13,6 +13,7 @@ use Server\Suport\TraitSuportValidationClass;
  * Represents an API endpoint with authentication and validation capabilities.
  *
  * @package Server\Routing
+ * @author William Nahirnei Lopes
  */
 class Endpoint {
     use TraitSuportValidationClass;

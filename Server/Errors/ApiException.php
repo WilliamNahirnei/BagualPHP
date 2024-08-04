@@ -13,6 +13,7 @@ use Server\Constants\StatusCodes;
  * a flag to indicate acceptance, an error type, a list of error messages, and an HTTP status code.
  *
  * @package Server\Errors
+ * @author William Nahirnei Lopes
  */
 class ApiException extends \Exception {
     /**

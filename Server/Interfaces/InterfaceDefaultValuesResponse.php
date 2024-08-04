@@ -10,6 +10,7 @@ use Server\Constants\StatusCodes;
  * response content, and messages. It provides a standard way to ensure consistency in response defaults.
  *
  * @package Server\Interfaces
+ * @author William Nahirnei Lopes
  */
 interface InterfaceDefaultValuesResponse
 {

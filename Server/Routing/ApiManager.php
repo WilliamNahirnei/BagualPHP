@@ -8,6 +8,7 @@ namespace Server\Routing;
  * Manages the loading and initialization of API endpoints from module directories.
  *
  * @package Server\Routing
+ * @author William Nahirnei Lopes
  */
 class ApiManager {
 
