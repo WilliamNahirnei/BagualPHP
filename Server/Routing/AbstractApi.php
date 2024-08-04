@@ -27,16 +27,23 @@ abstract class AbstractApi implements InterfaceRequestMethods {
     protected ?string $defaultAuthMethod = null;
 
     /**
+     * @var bool The default value if ignore auth method.
+     */
+    protected ?bool $ignoreAuth = false;
+
+    /**
      * Constructor for AbstractApi.
      *
      * @param string|null $moduleName The name of the module.
      * @param string|null $defaultAuthClass The default authentication class.
      * @param string|null $defaultAuthMethod The default authentication method.
+     * @param bool|null $ignoreAuth The default value if ignore auth method.
      */
     public function __construct(
         ?string $moduleName = null,
         ?string $defaultAuthClass = null,
-        ?string $defaultAuthMethod = null
+        ?string $defaultAuthMethod = null,
+        ?bool $ignoreAuth = null
     ) {
         if ($moduleName !== null) {
             $this->moduleName = $moduleName;
@@ -46,6 +53,9 @@ abstract class AbstractApi implements InterfaceRequestMethods {
         }
         if ($defaultAuthMethod !== null) {
             $this->defaultAuthMethod = $defaultAuthMethod;
+        }
+        if ($ignoreAuth !== null) {
+            $this->ignoreAuth = $ignoreAuth;
         }
     }
 
@@ -58,6 +68,7 @@ abstract class AbstractApi implements InterfaceRequestMethods {
      * @param string $controllerMethod The controller method.
      * @param string|null $authClass The authentication class.
      * @param string|null $authMethod The authentication method.
+     * @param ?bool $ignoreAuth Indicates whether authentication should be ignored.
      * @return void
      */
     protected function addEndpoint(
@@ -66,7 +77,8 @@ abstract class AbstractApi implements InterfaceRequestMethods {
         string $controllerClass, 
         string $controllerMethod, 
         ?string $authClass = null, 
-        ?string $authMethod = null
+        ?string $authMethod = null,
+        ?bool $ignoreAuth = null
     ): void {
         $endpoint = new Endpoint(
             $requestType,
@@ -74,7 +86,8 @@ abstract class AbstractApi implements InterfaceRequestMethods {
             $controllerClass,
             $controllerMethod,
             $authClass ?? $this->defaultAuthClass,
-            $authMethod ?? $this->defaultAuthMethod
+            $authMethod ?? $this->defaultAuthMethod,
+            $ignoreAuth !== null ? $ignoreAuth : $this->ignoreAuth
         );
 
         Route::{$requestType}($endpoint);

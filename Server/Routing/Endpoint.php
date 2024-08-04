@@ -3,6 +3,7 @@
 namespace Server\Routing;
 
 use Server\Auth\AbstractAuthenticable;
+use Server\Auth\AuthConfig;
 use Server\Errors\AuthenticationException;
 use Server\Suport\TraitSuportValidationClass;
 
@@ -15,6 +16,14 @@ use Server\Suport\TraitSuportValidationClass;
  */
 class Endpoint {
     use TraitSuportValidationClass;
+
+
+    /**
+     * The default authentication method used when no specific method is provided.
+     *
+     * @var string The name of the default authentication method.
+     */
+    const DEFAULT_AUTH_METHOD = "authenticate";
 
     /**
      * @var string The type of HTTP request (GET, POST, PUT, DELETE).
@@ -47,6 +56,16 @@ class Endpoint {
     private ?string $authMethod;
 
     /**
+     * @var AuthConfig instance to use auth configs.
+     */
+    private AuthConfig $authConfig;
+
+    /**
+     * @var bool Indicates whether authentication should be ignored.
+     * 
+     */
+    private bool $ignoreAuth;
+    /**
      * Endpoint constructor.
      * 
      * @param string $requestType The type of HTTP request (GET, POST, PUT, DELETE).
@@ -55,14 +74,16 @@ class Endpoint {
      * @param string $controllerMethod The method in the controller class to be called.
      * @param ?string $authClass The authentication class.
      * @param ?string $authMethod The method in the authentication class.
-     */
+     * @param bool $ignoreAuth Indicates whether authentication should be ignored.
+    */
     public function __construct(
         string $requestType, 
         string $endpoint, 
         string $controllerClass, 
         string $controllerMethod, 
         ?string $authClass, 
-        ?string $authMethod
+        ?string $authMethod,
+        bool $ignoreAuth
     ) {
         $this->requestType = $requestType;
         $this->endpoint = $endpoint;
@@ -70,6 +91,8 @@ class Endpoint {
         $this->controllerMethod = $controllerMethod;
         $this->authClass = $authClass;
         $this->authMethod = $authMethod;
+        $this->authConfig = AuthConfig::getInstance();
+        $this->ignoreAuth = $ignoreAuth;
     }
 
     /**
@@ -127,6 +150,25 @@ class Endpoint {
     }
 
     /**
+     * Retrieves the instance of AuthConfig.
+     *
+     * @return AuthConfig Returns the instance of the authentication configuration.
+     */
+    private function getAuthConfig(): AuthConfig {
+        return $this->authConfig;
+    }
+
+    /**
+     * Gets the value of the ignoreAuth property.
+     *
+     * @return bool|null Returns true if authentication is to be ignored, false otherwise. 
+     *                   Returns null if the ignoreAuth property is not explicitly set.
+     */
+    private function ignoreAuth(): ?bool {
+        return $this->ignoreAuth;
+    }
+
+    /**
      * Executes the endpoint by authenticating and then calling the controller method.
      *
      * @return mixed The result of the controller method.
@@ -150,6 +192,12 @@ class Endpoint {
      * @throws AuthenticationException If authentication fails.
      */
     private function authenticate(): bool {
+        if($this->ignoreAuth()) {
+            return true;
+        }
+        if (empty($this->getAuthClass())) {
+            $this->loadDefaultAuthApp();
+        }
         if (empty($this->getAuthClass()) || empty($this->getAuthMethod())) {
             return true;
         }
@@ -167,6 +215,21 @@ class Endpoint {
             throw new AuthenticationException();
         }
         return true;
+    }
+
+    /**
+     * Loads the default authentication class and method.
+     * 
+     * This method retrieves the default authentication class from the
+     * authentication configuration using the namespace specified by
+     * `AuthConfig::DEFAULT_CLASS_NAMESPACE`. It also sets the default
+     * authentication method using the `DEFAULT_AUTH_METHOD` constant.
+     * 
+     * @return void
+     */
+    private function loadDefaultAuthApp(): void {
+        $this->authClass = $this->getAuthConfig()->getConfig(AuthConfig::DEFAULT_CLASS_NAMESPACE);
+        $this->authMethod = self::DEFAULT_AUTH_METHOD;
     }
 
     /**

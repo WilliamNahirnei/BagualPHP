@@ -30,6 +30,11 @@ class Api extends AbstractApi {
     protected ?string $defaultAuthMethod = null;
 
     /**
+     * @var bool The default value if ignore auth method.
+     */
+    protected ?bool $ignoreAuth = false;
+
+    /**
      * Api constructor.
      * Initializes the parent class with the module name, authentication class, and authentication method.
      */
@@ -37,7 +42,8 @@ class Api extends AbstractApi {
         parent::__construct(
             $this->moduleName,
             $this->defaultAuthClass,
-            $this->defaultAuthMethod
+            $this->defaultAuthMethod,
+            $this->ignoreAuth
         );
     }
 

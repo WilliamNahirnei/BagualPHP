@@ -3,6 +3,7 @@
 namespace Src\Auth;
 
 use Server\Auth\AbstractAuthenticable;
+use Server\Constants\ServerMessage;
 use Server\Errors\AuthenticationException;
 
 class GeneralAuth extends AbstractAuthenticable{
@@ -12,16 +13,11 @@ class GeneralAuth extends AbstractAuthenticable{
      * @throws AuthenticationException
      */
     protected static function callAuthError(): void {
-        throw new AuthenticationException(["NAO AUTORIZADO"]);
+        throw new AuthenticationException([ServerMessage::DEFAULT_AUTH_ERROR]);
     }
 
-    public static function teste1() {
-        return true;
-    }
-
-    public static function teste2() {
-        return true;
-        // self::callAuthError();
+    public static function authenticate() {
+        return false;
     }
 }
 ?>
