@@ -11,6 +11,7 @@ Este projeto é uma biblioteca PHP projetada para facilitar o roteamento e o ger
 - **Respostas**: Gera e envia respostas HTTP com códigos de status e mensagens apropriadas.
 - **Autenticação**: Implementa uma estrutura básica de autenticação.
 - **Erros**: Gerencia exceções e erros, fornecendo mensagens e códigos de status apropriados.
+- **Configurações**: Gerencia configurações personalizadas de arquivos .env no sistema.
 
 ## Requisitos
 
