@@ -142,47 +142,47 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
 
     ```
 3. **Request:** A classe Request é a classe que disponibiliza acesso a alguns dados da requisição feita para a sua aplicação. A classe Request implementa a InterfacePHPRequest, responsavel por definir as constantes para alguns indices de variaveis superglobais.
-   A classe Request é um singleton inicializado apos o sistema determinar se o prefixo de api da request é valido com o que foi configurado.
-   A classe request disponibiliza alguns dados improtantes como parametros de query string, parametros de corpo da requisição, arquivos, e headers. Para acessar esses dados utilize a classe Request
+   - A classe Request é um singleton inicializado apos o sistema determinar se o prefixo de api da request é valido com o que foi configurado.
+   - A classe request disponibiliza alguns dados improtantes como parametros de query string, parametros de corpo da requisição, arquivos, e headers. Para acessar esses dados utilize a classe Request
    Para acessar parametros da queryString ex site.com/user?idUser=1&qtdRegistros=15 utilize:
        ```php
            $parametrosQueryString = Request::getInstance()->getQueryParams();
        ```
-   Para acessar parametros do corpo da requisição utilize:
+   - Para acessar parametros do corpo da requisição utilize:
        ```php
            $parametrosBody = Request::getInstance()->getBodyParams();
        ```
-   Para acessar parametros de query string, e compo de requisição utilize:
+   - Para acessar parametros de query string, e compo de requisição utilize:
        ```php
            $todosParametros = Request::getInstance()->getAllMergedParams();
        ```
-   Esse metodo retorna os parametros da string e corpo da requisição substituindo parametros da query string por parametros de corpo de requisição quando os nomes forem iguais.
-   Para acessar os headers utilize:
+   - Esse metodo retorna os parametros da string e corpo da requisição substituindo parametros da query string por parametros de corpo de requisição quando os nomes forem iguais.
+   - Para acessar os headers utilize:
        ```php
            $headers = Request::getInstance()->getHeaders();
        ```
-   Para acessar outros dados da requisição, consulte a documentação da classe, os dados disponibilizados e os metodos para recuperalos.
+   - Para acessar outros dados da requisição, consulte a documentação da classe, os dados disponibilizados e os metodos para recuperalos.
 
 4. **Response**: A classe Response é responsavel por gerenciar, e montar uma resposta da sua requisição.
-   Para definir os dados de resposta da requisição, basta retornar os dados desejados no seu metodo que foi acionado pelo endpoint. Automaticamente a classe response tentara converter os dados informados para um json.
-   A classe response implementa algumas interfaces de valores padrão para a resposta, e a InterfaceHeaders, que define as strings padrões de  headers de resposta 
-   O valor padrão de uma response que o metodo do controlador não retorne nada o seguinte conteudo, com codigo http padrão 200:
+   - Para definir os dados de resposta da requisição, basta retornar os dados desejados no seu metodo que foi acionado pelo endpoint. Automaticamente a classe response tentara converter os dados informados para um json.
+   - A classe response implementa algumas interfaces de valores padrão para a resposta, e a InterfaceHeaders, que define as strings padrões de  headers de resposta 
+   - O valor padrão de uma response que o metodo do controlador não retorne nada o seguinte conteudo, com codigo http padrão 200:
    ```json
    {
        "message": "",
        "data": null
    }
    ```
-   Para definir um codigo http de status utilize:
+   - Para definir um codigo http de status utilize:
    ```php
        Response::setStatusCode(StatusCodes::HTTP_OK);
    ```
-   Os codigos de resposta http estão definidos em constantes da classe StatusCodes.
-   Para adicionar um header de resposta utilize addHeader(nomeHeader, valorHeader):
+   - Os codigos de resposta http estão definidos em constantes da classe StatusCodes.
+   - Para adicionar um header de resposta utilize addHeader(nomeHeader, valorHeader):
    ```php
            Response::addHeader(Response::HEADER_CONTENT_TYPE, Response::CONTENT_TYPE_JSON);
    ```
-   Para adicionar mais de um valor ao mesmo header utilize o metodo addHeader informando o header a qual sera adicionado, e o valor.
+   - Para adicionar mais de um valor ao mesmo header utilize o metodo addHeader informando o header a qual sera adicionado, e o valor.
    
 
 
