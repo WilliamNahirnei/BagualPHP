@@ -244,7 +244,10 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
      - Para ignorar somente um endpoint especifco, seja autenticação global, ou de modulo envie o parametro ```ignoreAuth``` como ```true``` para o metodo ```addEndpoint```.
    - Prioridades de autenticação:
      - O sistema sempre ira tentar assumir a autenticação em uma ordem de prioridade especifica, caso não tenha sido definida autenticação para aquele nivel o framework ira tentar sempre assumir a autenticação do nivel superior sendo essa ordem: do item mais especifico, para o item mais generico.
-           - 1: Metodo ```addEndpoint```, autenticação especifica do endpoint. 2: Auteticação padrão do modulo. 3: Autenticação geral da api. Caso você envie valores nullos de autenticação para o metodo ```addEndpoint```, o framework ira tentar assumir os valores definidos no modulo, e assim por diante.
+           - 1: Metodo ```addEndpoint```, autenticação especifica do endpoint.
+           - 2: Auteticação padrão do modulo.
+           - 3: Autenticação geral da api.
+     -Caso você envie valores nullos de autenticação para o metodo ```addEndpoint```, o framework ira tentar assumir os valores definidos no modulo, e assim por diante.
 5. **Response**:
 
 
