@@ -259,7 +259,13 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
    ```env
        CFG_EXEMPLO = TESTE
    ```
-   - Crie uma classe que extenda de ```Config/ConfigLoader.php```. Dentro da classe defina a constante com o nome do seu arquivo de configuração ```php protected const FILE_NAME = '.exemplo.env';```. Defina o array de configurações de leitura permitida ```php protected const CONFIG_KEYS = ["CFG_EXEMPLO"]; ```. Pronto suas configurações estão prontas para serem utilizadas. Você pode criar N arquivos de configurações para determinada necessidade de utilização.
+   - Crie uma classe que extenda de ```Config/ConfigLoader.php```. Dentro da classe defina a constante com o nome do seu arquivo de configuração
+     ```php
+       protected const FILE_NAME = '.exemplo.env';
+     ```. Defina o array de configurações de leitura permitida
+     ```php
+         protected const CONFIG_KEYS = ["CFG_EXEMPLO"];
+     ```. Pronto suas configurações estão prontas para serem utilizadas. Você pode criar N arquivos de configurações para determinada necessidade de utilização.
    - aqui exta o exemplo da classe de teste completa:
      ```php
         <?php
@@ -299,7 +305,10 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
         }
         ?>
      ```
-     - para realizar a leitura de suas configurações basta utilizar ```php ConfigExemplo::getInstance()->getConfig("Nome da configuração definida no arquivo .env"); ```
+     - para realizar a leitura de suas configurações basta utilizar
+       ```php
+           ConfigExemplo::getInstance()->getConfig("Nome da configuração definida no arquivo .env");
+       ```
 
 
 Licença
