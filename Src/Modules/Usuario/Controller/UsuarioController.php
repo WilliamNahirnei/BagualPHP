@@ -44,9 +44,8 @@ class UsuarioController {
     /**
      * Creates a user with predefined data.
      * 
-     * Sets the response status and message before returning the created user.
+     * Seta um codigo de status de retorno, e depois retorna a simulação de um usuario criado.
      * 
-     * teste alterando arquivos.
      * 
      * @return stdClass An object representing the created user.
      */
