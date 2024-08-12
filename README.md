@@ -248,7 +248,58 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
            - 2: Auteticação padrão do modulo.
            - 3: Autenticação geral da api.
      -Caso você envie valores nullos de autenticação para o metodo ```addEndpoint```, o framework ira tentar assumir os valores definidos no modulo, e assim por diante.
-5. **Response**:
+5. **Erros**: Framework conta com um sistema de tratamento personalizado para excessões do tipo ```ApiException``` quando o framework tiver uma excessão desse tipo, ele ira adicionar retornar uma resposta de api, com o código http definido no erro, e a mensagem definida no erro. Aqui esta um exemplo do lançamento de uma excessão desse tipo:
+   ```php
+    throw new ApiException(true, ApiExceptionTypes::ERROR, ["Usuario não encontrado"], StatusCodes::HTTP_NOT_FOUND);
+   ```
+   - Caso a sua excessão tenha mais de uma mensagem, o framework ira retornar a lista de mensagens concatenadas separadas pelo caractere "|".
+6. **Configurações personalizadas**: O framework conta com um gerenciamento de configurações para arquivos .env personalizados, que você pode utilizar para criar configurações para suas api, e realizar a admnistração delas.
+   - Para utilizar as configurações personalizadas, crie um arquivo de configuração .env, dentro da pasta envsConfigs.
+   - como por exemplo o arquivo de configuração ```exemplo.env```
+   ```env
+       CFG_EXEMPLO = TESTE
+   ```
+   - Crie uma classe que extenda de ```Config/ConfigLoader.php```. Dentro da classe defina a constante com o nome do seu arquivo de configuração ```php protected const FILE_NAME = '.exemplo.env';```. Defina o array de configurações de leitura permitida ```php protected const CONFIG_KEYS = ["CFG_EXEMPLO"]; ```. Pronto suas configurações estão prontas para serem utilizadas. Você pode criar N arquivos de configurações para determinada necessidade de utilização.
+   - aqui exta o exemplo da classe de teste completa:
+     ```php
+        <?php
+        
+        namespace Src\Modules\Usuario;
+        
+        use Config\ConfigLoader;
+        
+        /**
+         * Class AuthConfig
+         * 
+         * This class reads an test configuration file and loads the configurations from it.
+         * It extends the ConfigLoader class and implements the Singleton pattern.
+         *
+         * @package Server\Auth
+         * @author William Nahirnei Lopes
+         */
+        class ConfigExemplo extends ConfigLoader {
+            /**
+             * @var string The path to the authentication configuration file.
+             */
+            protected const FILE_NAME = '.exemplo.env';
+        
+            /**
+             * The default config test name.
+             *
+             * @var string
+             */
+            public const CFG_EXEMPLO = "CFG_EXEMPLO";
+        
+            /**
+             * @var array The list of teste configuration keys to load.
+             */
+            protected const CONFIG_KEYS = [
+                self::CFG_EXEMPLO,
+            ];
+        }
+        ?>
+     ```
+     - para realizar a leitura de suas configurações basta utilizar ```php ConfigExemplo::getInstance()->getConfig("Nome da configuração definida no arquivo .env"); ```
 
 
 Licença
