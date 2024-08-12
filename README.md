@@ -184,38 +184,68 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
    ```
    - Para adicionar mais de um valor ao mesmo header utilize o metodo addHeader informando o header a qual sera adicionado, e o valor.
 
-4. **Autenticação**: O framework nomeframework, oferece uma maneira de definir metodos de autenticação de maneira customizada e simples para sua api. Basta desenvolver a maneira que ira autenticar, e definir quais sera os locais autenticados do seu sistema.
-   - Para autenticar o sistema inteiro em um unico local, crie sua classe de autenticação que extenda a classe AbstractAuthenticable com o metodo statico autenticate ```authenticate ``` esse metodo devera retornar um true ou false, e implemente o metodo ```callAuthError``` esse metodo devera chamar uma excessao caso a sua autenticação falhe. Utilize a excessao ```AuthenticationException```. Apos a implementação da sua autenticação, configure o arquivo envsConfigs/.auth.env com o nome da classe de autenticação criada. Apos isso o sistema ira automaticamente autenticar toda sua api. Caso sua classe de autenticação somente retornar um true ou false, o sistema automaticamente ira utilizar um erro padrão de autenticação.
-   - aqui esta um exemplo de uma classe de autenticação padrão para sistema:
-     ```php
-         <?php
-
-        namespace Src\Auth;
-        
-        use Server\Auth\AbstractAuthenticable;
-        use Server\Constants\ServerMessage;
-        use Server\Errors\AuthenticationException;
-        
-        class GeneralAuth extends AbstractAuthenticable{
+5. **Autenticação**: O framework nomeframework, oferece uma maneira de definir metodos de autenticação de maneira customizada e simples para sua api. Basta desenvolver a maneira que ira autenticar, e definir quais sera os locais autenticados do seu sistema.
+   - Autenticação geral de api.
+       - Para autenticar o toda a sua api em um unico local, crie sua classe de autenticação que extenda a classe AbstractAuthenticable com o metodo estatico autenticate ```authenticate ``` esse metodo devera retornar um true ou false, e implemente o metodo ```callAuthError``` esse metodo devera chamar uma excessao caso a autenticação não seja valida.
+       - Aconselhamos sempre utilizar a ```AuthenticationException``` para autenticações invalidas.
+       - Apos a implementação da sua autenticação, configure o arquivo envsConfigs/.auth.env com o nome da classe de autenticação criada. Apos isso o sistema ira automaticamente autenticar toda sua api. Caso sua classe de autenticação somente retornar um true ou false, o sistema automaticamente ira utilizar um erro padrão de autenticação.
+       - Todas as classes de autenticação deverão extender da classe ```AbstractAuthenticable```.
+       - O metodo principal de autenticação a ser chamado pelo framework, devera sempre ser estatico, e não ter parametros.
+       - aqui esta um exemplo de uma classe de autenticação padrão para sistema:
+         ```php
+             <?php
+    
+            namespace Src\Auth;
+            
+            use Server\Auth\AbstractAuthenticable;
+            use Server\Constants\ServerMessage;
+            use Server\Errors\AuthenticationException;
+            
+            class GeneralAuth extends AbstractAuthenticable{
+                /**
+                 * This method must be implemented by subclasses and must throw AuthenticationException
+                 *
+                 * @throws AuthenticationException
+                 */
+                protected static function callAuthError(): void {
+                    throw new AuthenticationException([ServerMessage::DEFAULT_AUTH_ERROR]);
+                }
+            
+                public static function authenticate() {
+                    return false;
+                }
+            }
+            ?>
+         ```
+       - Aqui esta o arquivo de configuração .env configurado:
+         ```env
+             DEFAULT_CLASS_NAMESPACE = Src\Auth\GeneralAuth
+         ```
+   - Autenticação de modulo:
+       - Como mencionado anteriormente você pode definir autenticações de manerias isolada para modulos, e metodos, para definir uma autenticação isolada, de todo um modulo, configure as variaveis a seguir do arquivo Api.php do seu modulo. Caso não queira autenticar o modulo defina-as como null.
+         ```php
             /**
-             * This method must be implemented by subclasses and must throw AuthenticationException
-             *
-             * @throws AuthenticationException
+             * @var string|null The default authentication class to use. Defaults to null.
              */
-            protected static function callAuthError(): void {
-                throw new AuthenticationException([ServerMessage::DEFAULT_AUTH_ERROR]);
-            }
+            protected ?string $defaultAuthClass = TokenAuth::class;
         
-            public static function authenticate() {
-                return false;
-            }
-        }
-        ?>
-     ```
-   - Aqui esta o arquivo de configuração .env configurado:
-     ```env
-         DEFAULT_CLASS_NAMESPACE = Src\Auth\GeneralAuth
-     ```
+            /**
+             * @var string|null The default authentication method to use. Defaults to null.
+             */
+            protected ?string $defaultAuthMethod = "authenticate";
+         ```
+   - Autenticação de endpoint:
+       - Caso queira  autenticar somente um enpoint do modulo defina a autenticação no metodo ```php addEnpoint ``` no endpoint que deseja autenticar, ou autentique todo o modulo, e envie a variavelde ignorar autenticação para todas os endpoints, exceto a que deseja autenticar.
+         ```php
+            $this->addEndpoint(static::METHOD_GET, null, UsuarioController::class, "listar", TokenAuth::class, "authenticate");
+         ```
+   - Ignorando autenticações:
+     - Você tambem pode ignorar autenticações em sua api, seja em nivel de modulo ou de enpoint, para ignorar uma autenticação definida globalmente para a api, em nivel de modulo difna a variavel ```$ignoreAuth = true``` em seu arquivo Api.php do modulo.
+     - Para ignorar somente um endpoint especifco, seja autenticação global, ou de modulo envie o parametro ```ignoreAuth``` como ```true``` para o metodo ```addEndpoint```.
+   - Prioridades de autenticação:
+     - O sistema sempre ira tentar assumir a autenticação em uma ordem de prioridade especifica, caso não tenha sido definida autenticação para aquele nivel o framework ira tentar sempre assumir a autenticação do nivel superior sendo essa ordem: do item mais especifico, para o item mais generico.
+           - 1: Metodo ```addEndpoint```, autenticação especifica do endpoint. 2: Auteticação padrão do modulo. 3: Autenticação geral da api. Caso você envie valores nullos de autenticação para o metodo ```addEndpoint```, o framework ira tentar assumir os valores definidos no modulo, e assim por diante.
+5. **Response**:
 
 
 Licença
