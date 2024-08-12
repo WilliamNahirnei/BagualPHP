@@ -183,7 +183,39 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
            Response::addHeader(Response::HEADER_CONTENT_TYPE, Response::CONTENT_TYPE_JSON);
    ```
    - Para adicionar mais de um valor ao mesmo header utilize o metodo addHeader informando o header a qual sera adicionado, e o valor.
-   
+
+4. **Autenticação**: O framework nomeframework, oferece uma maneira de definir metodos de autenticação de maneira customizada e simples para sua api. Basta desenvolver a maneira que ira autenticar, e definir quais sera os locais autenticados do seu sistema.
+   - Para autenticar o sistema inteiro em um unico local, crie sua classe de autenticação que extenda a classe AbstractAuthenticable com o metodo statico autenticate ```authenticate ``` esse metodo devera retornar um true ou false, e implemente o metodo ```callAuthError``` esse metodo devera chamar uma excessao caso a sua autenticação falhe. Utilize a excessao ```AuthenticationException```. Apos a implementação da sua autenticação, configure o arquivo envsConfigs/.auth.env com o nome da classe de autenticação criada. Apos isso o sistema ira automaticamente autenticar toda sua api. Caso sua classe de autenticação somente retornar um true ou false, o sistema automaticamente ira utilizar um erro padrão de autenticação.
+   - aqui esta um exemplo de uma classe de autenticação padrão para sistema:
+     ```php
+         <?php
+
+        namespace Src\Auth;
+        
+        use Server\Auth\AbstractAuthenticable;
+        use Server\Constants\ServerMessage;
+        use Server\Errors\AuthenticationException;
+        
+        class GeneralAuth extends AbstractAuthenticable{
+            /**
+             * This method must be implemented by subclasses and must throw AuthenticationException
+             *
+             * @throws AuthenticationException
+             */
+            protected static function callAuthError(): void {
+                throw new AuthenticationException([ServerMessage::DEFAULT_AUTH_ERROR]);
+            }
+        
+            public static function authenticate() {
+                return false;
+            }
+        }
+        ?>
+     ```
+   - Aqui esta o arquivo de configuração .env configurado:
+     ```env
+         DEFAULT_CLASS_NAMESPACE = Src\Auth\GeneralAuth
+     ```
 
 
 Licença
