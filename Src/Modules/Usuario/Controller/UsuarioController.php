@@ -46,6 +46,8 @@ class UsuarioController {
      * 
      * Sets the response status and message before returning the created user.
      * 
+     * teste alterando arquivos.
+     * 
      * @return stdClass An object representing the created user.
      */
     public function criar(): stdClass {
