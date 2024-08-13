@@ -54,7 +54,7 @@ jobs:
         if: env.CHANGED_FILES != ''
         run: |
           # Converte a lista de arquivos modificados em uma lista separada por espaços
-          FILES_TO_PROCESS=$(echo "$CHANGED_FILES" | tr '\n' ' ')
+          FILES_TO_PROCESS=$(echo "$CHANGED_FILES" | tr '\n' ' -f')
           # Executa o phpDocumentor apenas para os arquivos modificados
           docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default -f $FILES_TO_PROCESS
 
