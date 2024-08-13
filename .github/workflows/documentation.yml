@@ -19,6 +19,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Garantir que o histórico completo do Git é recuperado
+
+      - name: Fetch all branches and tags
+        run: |
+          git fetch --all
+          git fetch --tags
 
       - name: Get Changed Files
         id: changed-files
@@ -27,26 +34,29 @@ jobs:
           CURRENT_COMMIT=$(git rev-parse HEAD)
           # Obtém o commit anterior no histórico
           PREVIOUS_COMMIT=$(git log --format=%H -n 2 | tail -n 1)
-          
+
           # Se não houver commit anterior, configura um valor nulo
           if [ -z "$PREVIOUS_COMMIT" ]; then
-            PREVIOUS_COMMIT=$CURRENT_COMMIT
+            PREVIOUS_COMMIT=$(git rev-list --max-parents=0 HEAD)  # Commit inicial
           fi
-          
+
           # Lista os arquivos modificados entre o commit anterior e o atual
           CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT $PREVIOUS_COMMIT $CURRENT_COMMIT | grep '\.php$')
-          
-          # Converte a lista de arquivos modificados em uma lista separada por espaços
-          FILES_TO_PROCESS=$(echo "$CHANGED_FILES" | tr '\n' ' ')
-          
+
           # Armazena a lista de arquivos modificados no ambiente do GitHub Actions
-          echo "CHANGED_FILES=$FILES_TO_PROCESS" >> $GITHUB_ENV
-          echo "Modified PHP files: $FILES_TO_PROCESS"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+          echo "Modified PHP files: $CHANGED_FILES"
+        shell: /usr/bin/bash -e {0}
+        env:
+          GITHUB_PAGES: true
 
       - name: Build with phpDocumentor
         if: env.CHANGED_FILES != ''
         run: |
-          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default -f $CHANGED_FILES
+          # Converte a lista de arquivos modificados em uma lista separada por espaços
+          FILES_TO_PROCESS=$(echo "$CHANGED_FILES" | tr '\n' ' ')
+          # Executa o phpDocumentor apenas para os arquivos modificados
+          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default -f $FILES_TO_PROCESS
 
       - name: List contents of docs
         if: env.CHANGED_FILES != ''
