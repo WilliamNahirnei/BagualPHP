@@ -20,29 +20,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v1
-
-      - name: Cache phpDocumentor build files
-        id: phpdocumentor-cache
-        uses: actions/cache@v3
-        with:
-          path: .phpdoc/cache
-          key: ${{ runner.os }}-phpdocumentor-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-phpdocumentor-
+      - name: Fetch all branches
+        run: git fetch --all
 
       - name: Get Changed Files
         id: changed-files
         run: |
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep '\.php$')
+          # Obtém o nome da branch atual
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          # Obtém a lista de arquivos modificados no push
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT origin/$CURRENT_BRANCH...$CURRENT_BRANCH | grep '\.php$')
+          # Armazena a lista de arquivos modificados no ambiente do GitHub Actions
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           echo "Modified PHP files: $CHANGED_FILES"
+        shell: /usr/bin/bash -e {0}
+        env:
+          GITHUB_PAGES: true
 
       - name: Build with phpDocumentor
         if: env.CHANGED_FILES != ''
         run: |
-          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default --file $(echo $CHANGED_FILES)
+          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default
 
       - name: List contents of docs
         if: env.CHANGED_FILES != ''
