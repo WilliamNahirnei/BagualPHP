@@ -28,13 +28,16 @@ jobs:
       - name: Get Changed Files
         id: changed-files
         run: |
-          # Obtém o nome da branch atual
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           # Obtém o commit mais recente na branch
           CURRENT_COMMIT=$(git rev-parse HEAD)
           # Obtém o commit anterior no histórico
-          PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+          PREVIOUS_COMMIT=$(git log --format=%H -n 2 | tail -n 1)
           
+          # Se não houver commit anterior, configura um valor nulo
+          if [ -z "$PREVIOUS_COMMIT" ]; then
+            PREVIOUS_COMMIT=$CURRENT_COMMIT
+          fi
+
           # Lista os arquivos modificados entre o commit anterior e o atual
           CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT $PREVIOUS_COMMIT $CURRENT_COMMIT | grep '\.php$')
           
