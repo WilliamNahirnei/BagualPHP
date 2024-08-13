@@ -46,7 +46,7 @@ jobs:
       - name: Build with phpDocumentor
         if: env.CHANGED_FILES != ''
         run: |
-          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default --file $CHANGED_FILES
+          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default -f $CHANGED_FILES
 
       - name: List contents of docs
         if: env.CHANGED_FILES != ''
