@@ -32,17 +32,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-phpdocumentor-
 
-      - name: Fetch all branches and commits
-        run: git fetch --all
-
       - name: Get Changed Files
         id: changed-files
         run: |
-          if [ $(git rev-list --count HEAD) -gt 1 ]; then
-            CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD^ HEAD | grep '\.php$')
-          else
-            CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD | grep '\.php$')
-          fi
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep '\.php$')
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           echo "Modified PHP files: $CHANGED_FILES"
 
