@@ -44,7 +44,7 @@ class UsuarioController {
     /**
      * Creates a user with predefined data.
      * 
-     * teste documentação
+     * teste documentação"
      * 
      * 
      * @return stdClass An object representing the created user.
@@ -62,7 +62,7 @@ class UsuarioController {
     /**
      * Updates a user with predefined data.
      * 
-     * Sets the response status and message before returning the updated user.
+     * outr oteste
      * 
      * @return stdClass An object representing the updated user.
      */
