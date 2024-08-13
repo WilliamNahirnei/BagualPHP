@@ -20,20 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Fetch all branches
-        run: git fetch --all
+      - name: Fetch all branches and tags
+        run: |
+          git fetch --all
+          git fetch --tags
 
       - name: Get Changed Files
         id: changed-files
         run: |
           # Obtém o nome da branch atual
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          # Obtém a base da branch para comparação
-          BASE_BRANCH=$(git for-each-ref --format '%(upstream:short)' $(git symbolic-ref -q HEAD))
-          # Se não houver base branch, compara com o commit inicial
-          BASE_BRANCH=${BASE_BRANCH:-main}
-          # Obtém a lista de arquivos modificados no push
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT $BASE_BRANCH...$CURRENT_BRANCH | grep '\.php$')
+          # Obtém o commit mais recente na branch
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          # Obtém o commit anterior no histórico
+          PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+          
+          # Lista os arquivos modificados entre o commit anterior e o atual
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT $PREVIOUS_COMMIT $CURRENT_COMMIT | grep '\.php$')
+          
           # Armazena a lista de arquivos modificados no ambiente do GitHub Actions
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           echo "Modified PHP files: $CHANGED_FILES"
