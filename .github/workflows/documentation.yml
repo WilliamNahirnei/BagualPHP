@@ -19,10 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v1
-
       - name: Cache phpDocumentor build files
         id: phpdocumentor-cache
         uses: actions/cache@v3
@@ -31,39 +29,20 @@ jobs:
           key: ${{ runner.os }}-phpdocumentor-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-phpdocumentor-
-
-      - name: Get Changed Files
-        id: changed-files
-        run: |
-          echo "CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '\.php$')" >> $GITHUB_ENV
-
       - name: Build with phpDocumentor
-        if: env.CHANGED_FILES != ''
-        run: |
-          docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default --file $(echo $CHANGED_FILES)
-
-      - name: List contents of docs
-        if: env.CHANGED_FILES != ''
-        run: ls -la docs
-
-      - name: Check size of docs folder
-        if: env.CHANGED_FILES != ''
-        run: du -sh docs
-
+        run: docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default
       - name: Upload artifact to GitHub Pages
-        if: env.CHANGED_FILES != ''
         uses: actions/upload-pages-artifact@v1
         with:
           path: docs
-          name: github-pages
 
   deploy:
     needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifact_name: github-pages
