@@ -17,7 +17,7 @@ class UsuarioController {
     /**
      * Lists users with predefined data.
      * 
-     * DOC TESTES
+     * DOC TESTES aasdasd
      * 
      * @return array An array of users, where each user is an instance of stdClass.
      */
