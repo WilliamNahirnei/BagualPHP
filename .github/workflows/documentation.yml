@@ -38,7 +38,11 @@ jobs:
       - name: Get Changed Files
         id: changed-files
         run: |
-          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD^ HEAD | grep '\.php$')
+          if [ $(git rev-list --count HEAD) -gt 1 ]; then
+            CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD^ HEAD | grep '\.php$')
+          else
+            CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD | grep '\.php$')
+          fi
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           echo "Modified PHP files: $CHANGED_FILES"
 
