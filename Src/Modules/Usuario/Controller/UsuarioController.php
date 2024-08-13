@@ -17,7 +17,7 @@ class UsuarioController {
     /**
      * Lists users with predefined data.
      * 
-     * Sets the response status, message, and headers before returning a list of users.
+     * Sets the response status, message, and headers before returning a list of users. asdasdasdasdasd
      * 
      * @return array An array of users, where each user is an instance of stdClass.
      */
@@ -44,7 +44,7 @@ class UsuarioController {
     /**
      * Creates a user with predefined data.
      * 
-     * teste documentação"
+     * teste documentação asdasdasdasd"
      * 
      * 
      * @return stdClass An object representing the created user.
