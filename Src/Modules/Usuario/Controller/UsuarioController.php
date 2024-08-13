@@ -17,7 +17,7 @@ class UsuarioController {
     /**
      * Lists users with predefined data.
      * 
-     * Teste Deploi automatico documentacao git
+     * Teste Deploi automatico documentacao git alterado
      * 
      * @return array An array of users, where each user is an instance of stdClass.
      */
