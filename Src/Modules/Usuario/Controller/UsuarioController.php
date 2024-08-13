@@ -44,7 +44,7 @@ class UsuarioController {
     /**
      * Creates a user with predefined data.
      * 
-     * teste documentação asdasdasdasd"
+     * TESTES DOC"
      * 
      * 
      * @return stdClass An object representing the created user.
