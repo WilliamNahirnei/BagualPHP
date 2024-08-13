@@ -17,7 +17,7 @@ class UsuarioController {
     /**
      * Lists users with predefined data.
      * 
-     * DOC TESTES alterados documentacao
+     * Teste Deploi automatico documentacao git
      * 
      * @return array An array of users, where each user is an instance of stdClass.
      */
@@ -44,7 +44,7 @@ class UsuarioController {
     /**
      * Creates a user with predefined data.
      * 
-     * TESTES DOC  testes documentado
+     * TESTES DEPLOY DOC
      * 
      * 
      * @return stdClass An object representing the created user.

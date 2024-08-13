@@ -10,6 +10,7 @@ use Src\Modules\Usuario\Controller\UsuarioController;
  * 
  * This class defines the API endpoints for the "usuario" module.
  * It extends the AbstractApi class and configures endpoints with their respective HTTP methods, controllers, and authentication.
+ * TESTES DEPLOY AUTOMATICO DOCUMENTACAO
  *
  * @package Src\Modules\Usuario
  * @author William Nahirnei Lopes
