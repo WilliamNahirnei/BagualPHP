@@ -42,6 +42,14 @@ jobs:
         run: |
           docker run --rm --volume "$(pwd):/data" phpdoc/phpdoc:3 -vv --target docs --cache-folder .phpdoc/cache --template default --file $(echo $CHANGED_FILES)
 
+      - name: List contents of docs
+        if: env.CHANGED_FILES != ''
+        run: ls -la docs
+
+      - name: Check size of docs folder
+        if: env.CHANGED_FILES != ''
+        run: du -sh docs
+
       - name: Upload artifact to GitHub Pages
         if: env.CHANGED_FILES != ''
         uses: actions/upload-pages-artifact@v1
