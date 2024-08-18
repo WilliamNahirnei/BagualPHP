@@ -2,6 +2,7 @@
 namespace Server\Router;
 
 use Server\Interfaces\InterfacePHPRequest;
+use Server\Interfaces\SQLInjectionPatterns;
 
 /**
  * Class Request
@@ -12,7 +13,7 @@ use Server\Interfaces\InterfacePHPRequest;
  * @package Server\Router
  * @author William Nahirnei Lopes
  */
-class Request implements InterfacePHPRequest {
+class Request implements InterfacePHPRequest, SQLInjectionPatterns {
     /**
      * @var Request|null The singleton instance of the Request class.
      */
@@ -53,8 +54,8 @@ class Request implements InterfacePHPRequest {
      * Initializes the request data from the global PHP variables.
      */
     private function __construct() {
-        $this->queryParams = $_GET;
-        $this->bodyParams = json_decode(file_get_contents('php://input'), true);
+        $this->queryParams = $this->sanitizeParams($_GET);
+        $this->bodyParams = $this->sanitizeParams(json_decode(file_get_contents('php://input'), true) ?? []);
         $this->headers = getallheaders();
         $this->method = $_SERVER[self::REQUEST_METHOD];
         $this->uri = $_SERVER[self::REQUEST_URI];
@@ -134,6 +135,25 @@ class Request implements InterfacePHPRequest {
      */
     public function getAllMergedParams(): array {
         return array_merge($this->queryParams, $this->bodyParams);
+    }
+
+    /**
+     * Sanitizes request parameters by removing potential SQL injection commands.
+     *
+     * @param array $params The request parameters.
+     * @return array The sanitized parameters.
+     */
+    private function sanitizeParams(array $params): array {
+
+        foreach ($params as $key => $value) {
+            if (is_string($value)) {
+                $params[$key] = preg_replace(self::SQL_PATTERNS, '', $value);
+            } elseif (is_array($value)) {
+                $params[$key] = $this->sanitizeParams($value);  // Recursivamente sanitiza arrays aninhados
+            }
+        }
+
+        return $params;
     }
 }
 ?>

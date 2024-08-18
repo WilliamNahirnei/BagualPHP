@@ -2,3 +2,4 @@
 docs
 gerarDocs.sh
 .phpdoc/
+vendor

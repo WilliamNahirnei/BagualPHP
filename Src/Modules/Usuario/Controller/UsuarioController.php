@@ -2,6 +2,7 @@
 namespace Src\Modules\Usuario\Controller;
 
 use Server\Constants\StatusCodes;
+use Server\Router\Request;
 use Server\Router\Response;
 use stdClass;
 
@@ -15,9 +16,8 @@ use stdClass;
  */
 class UsuarioController {
     /**
-     * Lists users with predefined data.
      * 
-     * testes deploy arq 1
+     * Lists users with predefined data.
      * 
      * @return array An array of users, where each user is an instance of stdClass.
      */
@@ -42,10 +42,8 @@ class UsuarioController {
     }
 
     /**
+     * 
      * Creates a user with predefined data.
-     * 
-     * TESTES DEPLOY arqui 1 asss
-     * 
      * 
      * @return stdClass An object representing the created user.
      */
@@ -60,9 +58,8 @@ class UsuarioController {
     }
 
     /**
-     * Updates a user with predefined data.
      * 
-     * outr oteste
+     * Updates a user with predefined data.
      * 
      * @return stdClass An object representing the updated user.
      */
