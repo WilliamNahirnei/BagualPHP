@@ -8,7 +8,7 @@
  */
 
 // Autoloader
-require_once __DIR__ . '/Autoloader/Autoloader.php';   
+require __DIR__ . '/vendor/autoload.php'; 
 
 use Server\Router\Router;
 

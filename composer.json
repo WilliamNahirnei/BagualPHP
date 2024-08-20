@@ -1,0 +1,18 @@
+{
+    "name": "william-nahirnei/bagual-php",
+    "description": "Framework para construção de APIs PHP de maneira solida, consistente e modular.",
+    "type": "library",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+      "psr-4": {
+        "Config\\": "Config",
+        "Server\\": "Server",
+        "Src\\": "Src"
+        }
+     },
+     "version": "1.0.0",
+     "minimum-stability": "stable",
+     "prefer-stable": true
+}

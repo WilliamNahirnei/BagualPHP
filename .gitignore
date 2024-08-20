@@ -3,3 +3,4 @@ docs
 gerarDocs.sh
 .phpdoc/
 vendor
+composer.lock
