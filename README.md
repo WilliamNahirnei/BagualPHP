@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este projeto é uma biblioteca PHP projetada para facilitar o roteamento e o gerenciamento de APIs. A biblioteca é estruturada para funcionar com módulos, cada um definido em um diretório separado.
+O Bagual PHP é um framework, pensado na construção de APIs utilizando PHP de maneira simples, padronizada, consiste e modular.
 
 ## Funcionalidades
 
@@ -19,14 +19,14 @@ Este projeto é uma biblioteca PHP projetada para facilitar o roteamento e o ger
 
 ## Instalação
 
-1. Clone o repositório:
+1. Crie um novo projeto através do composer com o comando :
     ```bash
-    git clone https://github.com/WilliamNahirnei/PHP-APACHE-ROUTER.git
+    composer create-project william-nahirnei/bagual-php nome-projeto
     ```
 
 2. Navegue para o diretório do projeto:
     ```bash
-    cd seu-repositorio
+    cd nome-projeto
     ```
 
 3. Configure seu ambiente PHP para atender aos requisitos do projeto.
@@ -60,12 +60,12 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
 
 ### Como Usar
 
-1. **Roteamento**: O framework conta com um sistema de roteamento baseado em módulos.
-   - A maneira correta de utilizar o framework é criar diretórios para cada um dos módulos da sua API dentro do diretório `Src/Modules`.
+1. **Roteamento**: O BagualPHP conta com um sistema de roteamento baseado em módulos.
+   - A maneira correta de utilizar o BagualPHP é criar diretórios para cada um dos módulos da sua API dentro do diretório `Src/Modules`.
    - Após criar o diretório do seu módulo, você deve criar uma classe Api.php que deve estender ```Server\Routing\AbstractApi```. É nessa classe que seus endpoints serão definidos.
-   - O framework faz uma busca por todos os diretórios de módulos dentro de `Src/Modules` e realiza a leitura automática dos endpoints definidos na sua classe `Api.php`.
-   - Defina o atributo ```protected ?string $moduleName = "usuario";``` O atributo `moduleName` define um nome padrão para o módulo. Caso você não defina uma rota específica para os endpoints, o framework assumirá o nome do módulo como rota. Por exemplo, o endpoint será acessível em: `http://localhost:8080/usuario`.
-   - O atributo `defaultAuthClass` e o atributo `defaultAuthMethod` devem ser definidos para especificar uma classe e um método de autenticação para o módulo. Quando um endpoint for acionado, o framework irá autenticar conforme a classe e o método definidos. Caso você não queira autenticar o módulo, defina esses dois atributos como nulos. Leia mais sobre autenticação na seção de 'Autenticação'.
+   - O BagualPHP faz uma busca por todos os diretórios de módulos dentro de `Src/Modules` e realiza a leitura automática dos endpoints definidos na sua classe `Api.php`.
+   - Defina o atributo ```protected ?string $moduleName = "usuario";``` O atributo `moduleName` define um nome padrão para o módulo. Caso você não defina uma rota específica para os endpoints, o BagualPHP assumirá o nome do módulo como rota. Por exemplo, o endpoint será acessível em: `http://localhost:8080/usuario`.
+   - O atributo `defaultAuthClass` e o atributo `defaultAuthMethod` devem ser definidos para especificar uma classe e um método de autenticação para o módulo. Quando um endpoint for acionado, o BagualPHP irá autenticar conforme a classe e o método definidos. Caso você não queira autenticar o módulo, defina esses dois atributos como nulos. Leia mais sobre autenticação na seção de 'Autenticação'.
    ```php
        protected ?string $defaultAuthClass = TokenAuth::class;
        protected ?string $defaultAuthMethod = "authenticate";
@@ -169,13 +169,13 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
    ```
    - Para adicionar mais de um valor ao mesmo header, utilize o método `addHeader`, informando o nome do header e o valor adicional.
 
-5. **Autenticação**: OO framework nomeframework oferece uma maneira de definir métodos de autenticação de forma customizada e simples para sua API. Basta desenvolver a lógica de autenticação e definir quais serão os locais autenticados no seu sistema.
+5. **Autenticação**: O BagualPHP oferece uma maneira de definir métodos de autenticação de forma customizada e simples para sua API. Basta desenvolver a lógica de autenticação e definir quais serão os locais autenticados no seu sistema.
    - Autenticação geral de api.
        - Para autenticar toda a sua API em um único local, crie uma classe de autenticação que estenda a classe `AbstractAuthenticable` com o método estático `authenticate`. Esse método deverá retornar `true` ou `false`, indicando se a autenticação foi bem-sucedida. Além disso, implemente o método `callAuthError`, que deverá lançar uma exceção caso a autenticação não seja válida.
        - Aconselhamos sempre utilizar a ```AuthenticationException``` para autenticações inválidas.
        - Após a implementação da sua autenticação, configure o arquivo `envsConfigs/.auth.env` com o nome da classe de autenticação criada. Depois disso, o sistema irá automaticamente autenticar toda a sua API. Caso a sua classe de autenticação apenas retorne `true` ou `false`, o sistema utilizará automaticamente um erro padrão de autenticação.
        - Todas as classes de autenticação deverão estender a classe ```AbstractAuthenticable```.
-       - O método principal de autenticação a ser chamado pelo framework deverá sempre ser estático e não deve ter parâmetros.
+       - O método principal de autenticação a ser chamado pelo BagualPHP deverá sempre ser estático e não deve ter parâmetros.
        - Aqui está um exemplo de uma classe de autenticação padrão para o sistema:
          ```php
              <?php
@@ -222,17 +222,17 @@ Cada módulo deve ter um arquivo `Api.php`, que será lido pelo sistema para det
      - Você também pode ignorar autenticações em sua API, seja em nível de módulo ou de endpoint. Para ignorar uma autenticação definida globalmente para a API, em nível de módulo, defina a variável ```$ignoreAuth = true``` no arquivo `Api.php` do módulo.
      - Para ignorar a autenticação de um endpoint específico, seja global ou de módulo, envie o parâmetro `ignoreAuth` como `true` no método `addEndpoint`.
    - Prioridades de Autenticação:
-     - O framework sempre tentará aplicar a autenticação seguindo uma ordem de prioridade específica. Caso não tenha sido definida autenticação para um nível específico, o framework tentará assumir a autenticação do nível superior. A ordem de prioridade é a seguinte: do item mais específico para o item mais genérico.
+     - O BagualPHP sempre tentará aplicar a autenticação seguindo uma ordem de prioridade específica. Caso não tenha sido definida autenticação para um nível específico, o BagualPHP tentará assumir a autenticação do nível superior. A ordem de prioridade é a seguinte: do item mais específico para o item mais genérico.
            - 1: Método ```addEndpoint```, autenticação específica do endpoint.
            - 2: Autenticação padrão do módulo.
            - 3: Autenticação geral da API.
-     - Caso você envie valores nulos para autenticação no método ```addEndpoint```, o framework tentará usar os valores definidos no módulo e, se necessário, recorrerá à autenticação geral da API.
-5. **Erros**: O framework conta com um sistema de tratamento personalizado para exceções do tipo ```ApiException```. Quando o framework encontrar uma exceção desse tipo, ele retornará uma resposta de API com o código HTTP definido na exceção e a mensagem definida na exceção. Aqui está um exemplo de como lançar uma exceção desse tipo:
+     - Caso você envie valores nulos para autenticação no método ```addEndpoint```, o BagualPHP tentará usar os valores definidos no módulo e, se necessário, recorrerá à autenticação geral da API.
+5. **Erros**: O BagualPHP conta com um sistema de tratamento personalizado para exceções do tipo ```ApiException```. Quando o BagualPHP encontrar uma exceção desse tipo, ele retornará uma resposta de API com o código HTTP definido na exceção e a mensagem definida na exceção. Aqui está um exemplo de como lançar uma exceção desse tipo:
    ```php
     throw new ApiException(true, ApiExceptionTypes::ERROR, ["Usuario não encontrado"], StatusCodes::HTTP_NOT_FOUND);
    ```
-   - Caso a sua exceção tenha mais de uma mensagem, o framework retornará a lista de mensagens concatenadas, separadas pelo caractere `|`.
-6. **Configurações personalizadas**: O framework conta com um gerenciamento de configurações para arquivos `.env` personalizados, que você pode utilizar para criar e administrar configurações para suas APIs.
+   - Caso a sua exceção tenha mais de uma mensagem, o BagualPHP retornará a lista de mensagens concatenadas, separadas pelo caractere `|`.
+6. **Configurações personalizadas**: O BagualPHP conta com um gerenciamento de configurações para arquivos `.env` personalizados, que você pode utilizar para criar e administrar configurações para suas APIs.
    - Para utilizar as configurações personalizadas, crie um arquivo de configuração .env dentro da pasta `envsConfigs`.
    - Como, por exemplo, o arquivo de configuração `exemplo.env`.
    ```env
