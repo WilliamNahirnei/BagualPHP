@@ -1,19 +1,24 @@
 {
     "name": "william-nahirnei/bagual-php",
-    "description": "Framework para construção de APIs PHP de maneira solida, consistente e modular.",
+    "description": "Framework para constru\u00e7\u00e3o de APIs PHP de maneira solida, consistente e modular.",
     "type": "library",
     "require": {
         "php": ">=7.4"
     },
     "autoload": {
-      "psr-4": {
-        "Config\\": "Config",
-        "Server\\": "Server",
-        "Src\\": "Src"
+        "psr-4": {
+            "Config\\": "Config",
+            "Server\\": "Server",
+            "Src\\": "Src"
         }
-     },
-     "license": "MIT",
-     "version": "1.0.0",
-     "minimum-stability": "stable",
-     "prefer-stable": true
+    },
+    "license": "MIT",
+    "version": "1.0.0",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require-dev": {
+        "codeception/codeception": "^4.2",
+        "codeception/module-asserts": "^2.0",
+        "codeception/module-phpbrowser": "^1.0.0"
+    }
 }

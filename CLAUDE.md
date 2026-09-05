@@ -14,7 +14,7 @@ Não há etapa de build. Sirva a raiz do projeto com o servidor embutido do PHP:
 php -S localhost:8000
 ```
 
-`index.php` requer o autoloader do Composer (`vendor/autoload.php`, mapeamento PSR-4 definido em `composer.json` para `Config\`, `Server\`, `Src\`) e despacha toda requisição através de `Server\Router\Router`. Não há scripts de teste, lint ou build definidos em `composer.json`.
+`index.php` requer o autoloader do Composer (`vendor/autoload.php`, mapeamento PSR-4 definido em `composer.json` para `Config\`, `Server\`, `Src\`) e despacha toda requisição através de `Server\Router\Router`. Não há scripts de lint ou build definidos em `composer.json`. Testes automatizados existem via Codeception (ver seção "Testes" abaixo).
 
 ## Ciclo de vida da requisição (leia isto antes de mexer em `Server/`)
 
@@ -38,6 +38,12 @@ A autenticação é resolvida endpoint → módulo → global, com a mais espec�
 ## Padrão de carregamento de configuração
 
 `Config\ConfigLoader` é uma base singleton abstrata: as subclasses (ex.: `RouterConfig`, `AuthConfig`) declaram `protected const FILE_NAME` (um arquivo dentro de `envsConfigs/`) e `protected const CONFIG_KEYS` (a lista de permissão de chaves lidas desse arquivo). Somente as chaves em `CONFIG_KEYS` são carregadas do arquivo no estilo `.env`. Novas configurações por funcionalidade devem seguir esse mesmo padrão (arquivo `.env` próprio em `envsConfigs/`, subclasse própria de `ConfigLoader`) em vez de adicionar chaves a um loader já existente.
+
+## Testes
+
+Testes automatizados usam **Codeception 4.x** (`require-dev` em `composer.json`), com a suíte `unit` (`tests/unit/`) para testar classes do framework isoladamente. Rode com `vendor/bin/codecept run unit`. O plano de testes completo (organizado por módulo, com checklist de progresso) vive em `PLANO_TESTES.md`.
+
+**Convenção de nomenclatura de métodos de teste**: métodos de teste devem usar `camelCase` (seguindo PSR-1), nunca `snake_case` — ex.: `testWordEndingInOrGetsTruncated()`, não `test_word_ending_in_or_gets_truncated()`. Essa convenção vale só para os métodos de teste; ela não altera as convenções de nomenclatura já documentadas para o código de produção do framework (ver seções acima).
 
 ## Convenções a preservar ao editar o core do framework
 
