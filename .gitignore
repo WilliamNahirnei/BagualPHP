@@ -4,3 +4,5 @@ gerarDocs.sh
 .phpdoc/
 vendor
 composer.lock
+RESPOSTAS.md
+DIVIDA_TECNICA.md
