@@ -52,15 +52,18 @@ Legenda da checklist: `[_bug]` = teste de caracterização que documenta um comp
 
 `tests/unit/Router/RequestTest.php` — cobre `Request::sanitizeParams()` (item 6 do `DIVIDA_TECNICA.md`).
 
-- [x] `testIsolatedOrWordRemovedFromLegitimateText` `[_bug]` — `"Rafael or Silva"` → `"Rafael  Silva"`
-- [x] `testWordEndingInOrGetsTruncated` `[_bug]` — `"motor"` → `"mot"`
-- [x] `testCommonPtBrWordsEndingInOrAreTruncated` `[_bug]` — `"professor"` → `"profess"`, `"doutor"` → `"dout"`, `"administrador"` → `"administrad"`
-- [x] `testEmailStartingWithReservedWordIsCorrupted` `[_bug]` — `"user@example.com"` → `"@example.com"`
-- [x] `testActualSqlInjectionPayloadIsStillStripped` — `"1 OR 1=1"`, `"'; DROP TABLE users; --"` continuam neutralizados (comportamento esperado, protege contra regressão da correção futura)
-- [x] `testNestedArraysAreSanitizedRecursively` — cobre a recursão em arrays aninhados (comportamento esperado)
-- [x] `testGetAllMergedParamsMergesQueryAndBody` — comportamento esperado de `getAllMergedParams()`
+**Atualização (item 6 resolvido por remoção)**: a chamada a `sanitizeParams()` foi removida do construtor de `Request` (o método permanece na classe, marcado `@deprecated`, só para os testes de caracterização abaixo continuarem exercitando o comportamento antigo isoladamente). Os 4 testes `[_bug]` continuam válidos como testes de caracterização do método `sanitizeParams()` em si (que ainda existe e ainda tem o bug de pattern na causa raiz). Foi adicionado um novo teste de comportamento esperado que confirma que o fluxo real (via `Request::getInstance()`) não sanitiza mais nada.
 
-Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/codecept run unit`: **7 testes, 14 assertions, OK**.
+- [x] `testIsolatedOrWordRemovedFromLegitimateText` `[_bug]` — `"Rafael or Silva"` → `"Rafael  Silva"` (testa `sanitizeParams()` isolado via Reflection, método não é mais chamado no fluxo real)
+- [x] `testWordEndingInOrGetsTruncated` `[_bug]` — `"motor"` → `"mot"` (idem)
+- [x] `testCommonPtBrWordsEndingInOrAreTruncated` `[_bug]` — `"professor"` → `"profess"`, `"doutor"` → `"dout"`, `"administrador"` → `"administrad"` (idem)
+- [x] `testEmailStartingWithReservedWordIsCorrupted` `[_bug]` — `"user@example.com"` → `"@example.com"` (idem)
+- [x] `testActualSqlInjectionPayloadIsStillStripped` — `"1 OR 1=1"`, `"'; DROP TABLE users; --"` continuam neutralizados quando `sanitizeParams()` é chamado diretamente (comportamento esperado do método isolado)
+- [x] `testNestedArraysAreSanitizedRecursively` — cobre a recursão em arrays aninhados (comportamento esperado do método isolado)
+- [x] `testGetAllMergedParamsMergesQueryAndBody` — comportamento esperado de `getAllMergedParams()`
+- [x] `testQueryParamsArriveUnalteredNowThatSanitizationWasRemovedFromTheFlow` — comportamento esperado **do fluxo real**: instancia `Request` via `getInstance()` (construtor real, sem Reflection para pular `sanitizeParams()`) com `$_GET` contendo os mesmos valores que antes eram corrompidos (`"Rafael or Silva"`, `"motor"`, `"admin@example.com"`, símbolos `--`/`#`/`;`/`*`) e confirma que `getQueryParams()` retorna tudo idêntico a `$_GET`, sem nenhuma alteração
+
+Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/codecept run unit`: **8 testes, 15 assertions, OK**.
 
 ---
 

@@ -103,10 +103,43 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame(['a' => '1', 'b' => '2'], $request->getAllMergedParams());
     }
 
+    // item 6 (resolvido por remoção): a chamada a sanitizeParams() foi removida do construtor de Request,
+    // então valores que antes eram corrompidos (sufixo "-or", "@" após "user"/"admin", símbolos --/#/;/*)
+    // agora chegam intactos em getQueryParams(), pois passam direto de $_GET sem qualquer sanitização.
+    public function testQueryParamsArriveUnalteredNowThatSanitizationWasRemovedFromTheFlow()
+    {
+        $originalGet = $_GET;
+        $originalServer = $_SERVER;
+        $_GET = [
+            'nome' => 'Rafael or Silva',
+            'profissao' => 'motor',
+            'email' => 'admin@example.com',
+            'obs' => 'Apto #302, Rua 5 de Outubro; *importante* -- confirmar',
+        ];
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/api/teste';
+
+        $this->resetSingletonInstance();
+        $request = Request::getInstance();
+
+        $this->assertSame($_GET, $request->getQueryParams());
+
+        $_GET = $originalGet;
+        $_SERVER = $originalServer;
+        $this->resetSingletonInstance();
+    }
+
     // Request lê superglobais no construtor (item 7 do DIVIDA_TECNICA.md), então instanciamos sem passar por ele
     private function makeRequestWithoutConstructor(): Request
     {
         return (new ReflectionClass(Request::class))->newInstanceWithoutConstructor();
+    }
+
+    private function resetSingletonInstance(): void
+    {
+        $property = new ReflectionProperty(Request::class, 'instance');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
     }
 
     private function sanitize(array $params): array
