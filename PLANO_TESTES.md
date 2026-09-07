@@ -79,17 +79,24 @@ Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/code
 
 ---
 
-## 3. Routing/Controller
+## 3. Routing/Controller — ✅ concluído (item 4 da `DIVIDA_TECNICA.md` corrigido)
 
-`tests/unit/Routing/EndpointControllerTest.php` — cobre `Endpoint::executeEndpoint()` / `validateExistenceEndpointExecutable()` (item 4 do `DIVIDA_TECNICA.md`), usando fixture `FakeController` com métodos `staticNoParams()`, `staticWithRequiredParam(string $id)`, `nonStaticUsingThis()`, `nonStaticNotUsingThis()`.
+`tests/unit/Routing/EndpointControllerTest.php` — cobre `Endpoint::executeEndpoint()` / `validateExistenceEndpointExecutable()` (item 4 do `DIVIDA_TECNICA.md`), usando fixture `tests/unit/Fixtures/Controllers/FakeController.php` (`namespace Fixtures\Controllers;`) com métodos `staticNoParams()`, `staticWithRequiredParam(string $id)`, `nonStaticUsingThis()`, `nonStaticNotUsingThis()`. Endpoints são instanciados diretamente (`new Endpoint(...)`, construtor público) com `ignoreAuth = true`, isolando o módulo da resolução de autenticação (item 3).
 
-- [ ] `testStaticMethodWithoutParamsExecutesNormally` — comportamento esperado
-- [ ] `testMissingControllerClassThrowsException` — comportamento esperado
-- [ ] `testMissingControllerMethodThrowsException` — comportamento esperado
-- [ ] `testNonStaticMethodUsingThisThrowsError` `[_bug]` — hoje gera `\Error` genérico (não uma falha de validação clara antes da chamada)
-- [ ] `testNonStaticMethodNotUsingThisExecutesWithoutAnyError` `[_bug]` — o caso mais perigoso: nenhum erro é levantado, execução ocorre com semântica errada
-- [ ] `testMethodWithRequiredParamThrowsArgumentCountError` `[_bug]` — deveria ser barrado antes da chamada por validação de assinatura, mas hoje só falha em runtime
-- [ ] `testValidateExistenceEndpointExecutableNeverCallsMethodIsStaticOrMethodHasNoParameters` `[_bug]` — trava a ausência da validação; deve ser atualizado quando o item 4 for corrigido
+- [x] `testStaticMethodWithoutParamsExecutesNormally` — comportamento esperado
+- [x] `testMissingControllerClassThrowsException` — comportamento esperado
+- [x] `testMissingControllerMethodThrowsException` — comportamento esperado
+- [x] `testNonStaticControllerMethodIsRejectedBeforeExecution` — comportamento esperado (corrigido): método não-estático é barrado por `\Exception` clara antes da chamada, com a mensagem `"... must be static"`
+- [x] `testNonStaticControllerMethodIsRejectedEvenWhenItDoesNotUseThis` — comportamento esperado (corrigido): mesmo o caso mais perigoso do bug original (método não-estático que não usa `$this` e antes executava silenciosamente) agora é barrado antes da execução
+- [x] `testControllerMethodWithRequiredParamIsRejectedBeforeExecution` — comportamento esperado (corrigido): método com parâmetro obrigatório é barrado por `\Exception` clara (`"... must not have parameters"`) em vez de falhar em runtime com `ArgumentCountError`
+
+**Atualização — os 3 testes `[_bug]` foram reescritos para especificar o comportamento correto**: o usuário observou que os testes `[_bug]` originais só atestavam a existência do bug (documentavam o erro atual), sem validar como a validação deveria se comportar corretamente. Os 3 testes foram reescritos para exigir que `validateExistenceEndpointExecutable()` rejeite explicitamente métodos não-estáticos ou com parâmetros — e `Endpoint::validateExistenceEndpointExecutable()` (`Server/Routing/Endpoint.php`) foi corrigido de fato, adicionando `methodIsStatic()` e `methodHasNoParameters()` (já existentes em `TraitSuportValidationClass`, reaproveitados do mesmo jeito que já eram usados para a classe/método de auth em `authClassIAutenticatle()`). O item 4 da `DIVIDA_TECNICA.md` está resolvido.
+
+**Decisão anterior, ainda válida**: o sétimo teste cogitado (`testValidateExistenceEndpointExecutableNeverCallsMethodIsStaticOrMethodHasNoParameters`, baseado em inspeção de código-fonte via Reflection) continua descartado — não fazia sentido mesmo antes da correção, e faz ainda menos sentido agora que a validação existe de fato e é coberta comportamentalmente pelos 3 testes acima.
+
+Foi necessário adicionar `autoload-dev` (`"psr-4": {"": "tests/unit/"}`) ao `composer.json` e rodar `composer dump-autoload`, já que `FakeController` (diferente das classes de `Server\`) não tinha nenhum mapeamento PSR-4 para ser carregada.
+
+Implementado em `tests/unit/Routing/EndpointControllerTest.php`. Rodado com `vendor/bin/codecept run unit` (suíte completa): **14 testes, 24 assertions, OK**.
 
 ---
 

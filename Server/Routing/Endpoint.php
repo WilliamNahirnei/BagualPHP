@@ -245,14 +245,16 @@ class Endpoint {
     }
 
     /**
-     * Validates the existence of the controller class and method.
+     * Validates the existence of the controller class and method, and that the controller method is static and has no parameters.
      *
      * @return void
-     * @throws \Exception If the controller class or method does not exist.
+     * @throws \Exception If the controller class or method does not exist, or if the method is not static or has parameters.
      */
     private function validateExistenceEndpointExecutable(): void {
         $this->classExists($this->getControllerClass());
         $this->methodExists($this->getControllerClass(), $this->getControllerMethod());
+        $this->methodIsStatic($this->getControllerClass(), $this->getControllerMethod());
+        $this->methodHasNoParameters($this->getControllerClass(), $this->getControllerMethod());
     }
 
     /**

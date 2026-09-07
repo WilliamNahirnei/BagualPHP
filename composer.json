@@ -12,6 +12,11 @@
             "Src\\": "Src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "": "tests/unit/"
+        }
+    },
     "license": "MIT",
     "version": "1.0.0",
     "minimum-stability": "stable",
