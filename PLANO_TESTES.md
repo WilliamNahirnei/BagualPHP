@@ -44,7 +44,7 @@ BagualPHP/
 - **`functional`**: emula requisições dentro do mesmo processo via um módulo de framework (Symfony2, Laravel5 etc.). O BagualPHP não é um dos frameworks suportados nativamente pelo Codeception, então essa suíte ficaria sem módulo configurado a menos que se escreva um módulo customizado que instancie `Router` manualmente simulando superglobais — overhead desnecessário para testar um método isolado.
 - **`acceptance`** (módulo `PhpBrowser`): testa a aplicação de fora, via HTTP real, exigindo um servidor rodando (`php -S localhost:8000`). Faz sentido para testes de ponta a ponta do `Router` (ex.: bater numa rota real e conferir o vazamento de stack trace do item 5), mas é lento e desnecessário para verificar se `"motor"` vira `"mot"`.
 
-Legenda da checklist: `[_bug]` = teste de caracterização que documenta um comportamento **atual e incorreto**, ligado a um item do `DIVIDA_TECNICA.md` (precisa ser revisado/atualizado quando o bug for corrigido). Sem marcação = teste de **comportamento esperado** (não é bug, é o funcionamento correto que deve ser preservado).
+Legenda da checklist: `[_bug]` = teste ligado a um item do `DIVIDA_TECNICA.md` que já especifica o **comportamento correto esperado** (não o comportamento atual). Esses testes devem falhar contra o código de hoje — a falha é o que evidencia que o bug existe — e só passam quando o item correspondente da dívida técnica é de fato corrigido. Sem marcação = teste de **comportamento esperado** que já é o funcionamento correto atual (não é bug, deve ser preservado).
 
 ---
 
@@ -67,15 +67,41 @@ Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/code
 
 ---
 
-## 2. Routing/Endpoint (auth)
+## 2. Routing/Endpoint (auth) — implementado (4 testes `[_bug]` falhando por design, item 3 da `DIVIDA_TECNICA.md` ainda "Aberto")
 
-`tests/unit/Routing/EndpointAuthenticateTest.php` — cobre `Endpoint::authenticate()` (item 3 do `DIVIDA_TECNICA.md`).
+`tests/unit/Routing/EndpointAuthenticateTest.php` — cobre `Endpoint::authenticate()` (item 3 do `DIVIDA_TECNICA.md`). Fixtures: `tests/unit/Fixtures/Auth/FakeAuth.php`, `tests/unit/Fixtures/Auth/FakeAuthNotExtendingAbstract.php`.
 
-- [ ] `testIgnoreAuthTrueSkipsAuthentication` — comportamento esperado
-- [ ] `testValidAuthClassGrantsAccess` — comportamento esperado (`FakeAuth::authenticate()` retornando `true`)
-- [ ] `testInvalidCredentialsThrowAuthenticationException` — comportamento esperado
-- [ ] `testAuthClassNotExtendingAbstractAuthenticableThrowsException` — comportamento esperado (validação de `classExtends`)
-- [ ] `testEndpointWithoutAnyAuthClassConfiguredAllowsAccess` `[_bug]` — `ignoreAuth = false` mas nenhuma `authClass`/`authMethod` resolvida (nem endpoint, nem módulo, nem global) ainda assim libera acesso (fail-open)
+- [x] `testIgnoreAuthTrueSkipsAuthentication` — comportamento esperado
+- [x] `testValidAuthClassGrantsAccess` — comportamento esperado (`FakeAuth::authenticate()` retornando `true`)
+- [x] `testInvalidCredentialsThrowAuthenticationException` — comportamento esperado
+- [x] `testAuthClassNotExtendingAbstractAuthenticableThrowsException` — comportamento esperado (validação de `classExtends`)
+- [x] `testAuthMethodNonStaticThrowsException` — comportamento esperado (validação de `methodIsStatic` em `authClassIAutenticatle()`, mesmo padrão já coberto para o controller no item 3)
+- [x] `testAuthMethodWithParametersThrowsException` — comportamento esperado (validação de `methodHasNoParameters` em `authClassIAutenticatle()`, mesmo padrão já coberto para o controller no item 3)
+- [x] `testMissingAuthClassThrowsException` — comportamento esperado (`authClass` aponta para classe inexistente; validação de `classExists` em `validateExistenceAuthenticationDefined()`)
+- [x] `testMissingAuthMethodThrowsException` — comportamento esperado (`authMethod` inexistente na classe de auth; validação de `methodExists` em `validateExistenceAuthenticationDefined()`)
+- [x] `testEndpointWithoutAnyAuthClassConfiguredThrowsConfigurationException` `[_bug]` — implementado especificando o comportamento **correto** (item 3 da `DIVIDA_TECNICA.md`, ainda "Aberto"). **Falha hoje** (`Failed asserting that exception of type "Exception" is thrown`) contra `Endpoint::authenticate()`, que retorna `true` (fail-open) — a falha é intencional e evidencia o bug; só passará quando o item 3 for corrigido.
+- [x] `testAuthClassDefinedWithoutAuthMethodThrowsConfigurationException` `[_bug]` — mesmo espírito (a condição real é `empty($authClass) || empty($authMethod)`, um OU). **Falha hoje**, pelo mesmo motivo.
+- [x] `testAuthMethodDefinedWithoutAuthClassThrowsConfigurationException` `[_bug]` — caso simétrico. **Falha hoje.**
+- [x] `testLoadDefaultAuthAppPreservesCustomAuthMethodWhenAuthClassIsEmpty` `[_bug]` — comportamento correto: `loadDefaultAuthApp()` deveria preservar um `authMethod` customizado já definido, preenchendo só `authClass` a partir do global. **Falha hoje** (`Expected 'alternateAuthenticate' / Actual 'authenticate'`) porque `loadDefaultAuthApp()` sobrescreve os dois incondicionalmente (`Endpoint.php:231-234`).
+- [x] `testGlobalDefaultAuthClassIsUsedWhenEndpointHasNoAuthClass` — comportamento esperado (fallback global com sucesso: `authClass` não passado no construtor do `Endpoint`, `AuthConfig::DEFAULT_CLASS_NAMESPACE` mockada via Reflection apontando para `FakeAuth::class`, autenticação ocorre de fato por esse caminho)
+- [x] `testGlobalDefaultAuthClassIsUsedWhenEndpointHasNoAuthClassAndCredentialsAreInvalid` — comportamento esperado (mesmo fallback global, mas `FakeAuth::authenticate()` retorna `false` — separado do teste anterior em vez de um único teste cobrindo sucesso e falha, já que cada `expectException()` do PHPUnit encerra o método de teste)
+
+**Configuração via `.env`**: os testes que dependem do fallback global (`AuthConfig::DEFAULT_CLASS_NAMESPACE`) não tocam o arquivo real `envsConfigs/.auth.env` nem escrevem nele. Em vez disso, usam Reflection para ler/sobrescrever a propriedade `protected $config` da instância singleton de `AuthConfig::getInstance()` em `_before()`/`_after()`, restaurando o valor original ao final de cada teste — o mesmo padrão de contorno de estado estático global já usado no projeto (`ConfigLoader`/`Route`/`Response`).
+
+Rodado com `vendor/bin/codecept run unit` (suíte completa): **32 testes, 49 assertions, 4 falhas** — as 4 falhas são os testes `[_bug]` acima, falhando por design.
+
+### 2b. Precedência endpoint > módulo (mesma funcionalidade de auth, classe diferente) — implementado
+
+`Endpoint::authenticate()` só enxerga o que já chegou pronto no construtor (endpoint ou módulo, indistinguível) e o fallback global — a prioridade "endpoint sobrescreve módulo" é resolvida antes disso, em `AbstractApi::addEndpoint()` (`Server/Routing/AbstractApi.php:75-95`). Como é a mesma funcionalidade de autenticação (o segundo dos 3 níveis: endpoint → módulo → global), fica coberta aqui também, mas por exercitar `AbstractApi` (classe abstrata — precisa de uma fixture concreta que a estenda, `tests/unit/Fixtures/Api/FakeApi.php`) em vez de `Endpoint`, num arquivo de teste separado: `tests/unit/Routing/AbstractApiAuthTest.php`.
+
+- [x] `testEndpointAuthClassOverridesModuleDefaultAuthClass` — comportamento esperado (`authClass`/`authMethod` passados em `addEndpoint()` prevalecem sobre `defaultAuthClass`/`defaultAuthMethod` do módulo — `$authClass ?? $this->defaultAuthClass`)
+- [x] `testModuleDefaultAuthClassUsedWhenEndpointDoesNotSpecifyAuthClass` — comportamento esperado (endpoint não passa `authClass`/`authMethod`; usa o default do módulo)
+- [x] `testEndpointIgnoreAuthFalseOverridesModuleIgnoreAuthTrue` — comportamento esperado (`ignoreAuth: false` passado explicitamente no endpoint prevalece sobre `ignoreAuth: true` do módulo — a checagem é `!== null`, não `??`, exatamente para permitir isso)
+- [x] `testModuleIgnoreAuthUsedWhenEndpointDoesNotSpecifyIgnoreAuth` — comportamento esperado (endpoint não passa `ignoreAuth` (`null`); usa o default do módulo)
+
+`FakeApi::callAddEndpoint()` grava o `Endpoint` resultante no estado estático de `Route` (mesmo efeito colateral de `AbstractApi::addEndpoint()` real); os testes leem de volta via `Route::fecthRouteList()`. `_after()` reseta `Route::$allRoutesRoutesFunctions` via Reflection para o array vazio padrão, evitando vazamento entre testes.
+
+Rodado com `vendor/bin/codecept run unit` (suíte completa, mesma execução do item 2 acima): as 4 asserções deste item passaram.
 
 ---
 
