@@ -4,7 +4,7 @@ Plano de testes automatizados para o framework, organizado por módulo. Ferramen
 
 ## Ferramenta e estrutura
 
-- **Codeception `^4.2`** — usa PHPUnit por baixo (`Codeception\Test\Unit` estende `PHPUnit\Framework\TestCase`), então os desafios de testabilidade já mapeados continuam valendo (estado estático global em `Route`/`Response`/`ConfigLoader`, `Request` lendo superglobais no construtor — contornado via `newInstanceWithoutConstructor()` + Reflection até a refatoração do item 6 do `DIVIDA_TECNICA.md` existir).
+- **Codeception `^4.2`** — usa PHPUnit por baixo (`Codeception\Test\Unit` estende `PHPUnit\Framework\TestCase`), então os desafios de testabilidade já mapeados continuam valendo (estado estático global em `Route`/`Response`/`ConfigLoader`, `Request` lendo superglobais no construtor — contornado via `newInstanceWithoutConstructor()` + Reflection até a refatoração do item 5 do `DIVIDA_TECNICA.md` existir).
 - Suíte usada para os testes deste plano: **`unit`** — testa as classes do framework isoladamente, no mesmo processo, sem servidor HTTP. As suítes `functional` e `acceptance` foram geradas pelo bootstrap padrão do Codeception, mas não são usadas por este plano (ver explicação abaixo).
 - **Status: já instalado e inicializado.** `require-dev` em `composer.json`: `codeception/codeception: ^4.2`, `codeception/module-asserts: ^2.0` (a versão `3.x` exige PHP `^8.2`, incompatível com o `>=7.4` deste projeto), `codeception/module-phpbrowser: ^1.0.0` (adicionado automaticamente pelo `codecept bootstrap` para a suíte `acceptance`).
 - Execução: `vendor/bin/codecept run unit`.
@@ -50,7 +50,7 @@ Legenda da checklist: `[_bug]` = teste ligado a um item do `DIVIDA_TECNICA.md` q
 
 ## 1. Router/Request — ✅ concluído
 
-`tests/unit/Router/RequestTest.php` — cobre `Request::sanitizeParams()` (item 5 do `DIVIDA_TECNICA.md`).
+`tests/unit/Router/RequestTest.php` — cobre `Request::sanitizeParams()` (item 4 do `DIVIDA_TECNICA.md`).
 
 **Atualização (item 5 resolvido por remoção)**: a chamada a `sanitizeParams()` foi removida do construtor de `Request` (o método permanece na classe, marcado `@deprecated`, só para os testes de caracterização abaixo continuarem exercitando o comportamento antigo isoladamente). Os 4 testes `[_bug]` continuam válidos como testes de caracterização do método `sanitizeParams()` em si (que ainda existe e ainda tem o bug de pattern na causa raiz). Foi adicionado um novo teste de comportamento esperado que confirma que o fluxo real (via `Request::getInstance()`) não sanitiza mais nada.
 
@@ -67,9 +67,9 @@ Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/code
 
 ---
 
-## 2. Routing/Endpoint (auth) — implementado (4 testes `[_bug]` falhando por design, item 3 da `DIVIDA_TECNICA.md` ainda "Aberto")
+## 2. Routing/Endpoint (auth) — implementado (4 testes `[_bug]` falhando por design, item 2 da `DIVIDA_TECNICA.md` ainda "Aberto")
 
-`tests/unit/Routing/EndpointAuthenticateTest.php` — cobre `Endpoint::authenticate()` (item 3 do `DIVIDA_TECNICA.md`). Fixtures: `tests/unit/Fixtures/Auth/FakeAuth.php`, `tests/unit/Fixtures/Auth/FakeAuthNotExtendingAbstract.php`.
+`tests/unit/Routing/EndpointAuthenticateTest.php` — cobre `Endpoint::authenticate()` (item 2 do `DIVIDA_TECNICA.md`). Fixtures: `tests/unit/Fixtures/Auth/FakeAuth.php`, `tests/unit/Fixtures/Auth/FakeAuthNotExtendingAbstract.php`.
 
 - [x] `testIgnoreAuthTrueSkipsAuthentication` — comportamento esperado
 - [x] `testValidAuthClassGrantsAccess` — comportamento esperado (`FakeAuth::authenticate()` retornando `true`)
@@ -79,7 +79,7 @@ Implementado em `tests/unit/Router/RequestTest.php`. Rodado com `vendor/bin/code
 - [x] `testAuthMethodWithParametersThrowsException` — comportamento esperado (validação de `methodHasNoParameters` em `authClassIAutenticatle()`, mesmo padrão já coberto para o controller no item 3)
 - [x] `testMissingAuthClassThrowsException` — comportamento esperado (`authClass` aponta para classe inexistente; validação de `classExists` em `validateExistenceAuthenticationDefined()`)
 - [x] `testMissingAuthMethodThrowsException` — comportamento esperado (`authMethod` inexistente na classe de auth; validação de `methodExists` em `validateExistenceAuthenticationDefined()`)
-- [x] `testEndpointWithoutAnyAuthClassConfiguredThrowsConfigurationException` `[_bug]` — implementado especificando o comportamento **correto** (item 3 da `DIVIDA_TECNICA.md`, ainda "Aberto"). **Falha hoje** (`Failed asserting that exception of type "Exception" is thrown`) contra `Endpoint::authenticate()`, que retorna `true` (fail-open) — a falha é intencional e evidencia o bug; só passará quando o item 3 for corrigido.
+- [x] `testEndpointWithoutAnyAuthClassConfiguredThrowsConfigurationException` `[_bug]` — implementado especificando o comportamento **correto** (item 2 da `DIVIDA_TECNICA.md`, ainda "Aberto"). **Falha hoje** (`Failed asserting that exception of type "Exception" is thrown`) contra `Endpoint::authenticate()`, que retorna `true` (fail-open) — a falha é intencional e evidencia o bug; só passará quando o item 2 for corrigido.
 - [x] `testAuthClassDefinedWithoutAuthMethodThrowsConfigurationException` `[_bug]` — mesmo espírito (a condição real é `empty($authClass) || empty($authMethod)`, um OU). **Falha hoje**, pelo mesmo motivo.
 - [x] `testAuthMethodDefinedWithoutAuthClassThrowsConfigurationException` `[_bug]` — caso simétrico. **Falha hoje.**
 - [x] `testLoadDefaultAuthAppPreservesCustomAuthMethodWhenAuthClassIsEmpty` `[_bug]` — comportamento correto: `loadDefaultAuthApp()` deveria preservar um `authMethod` customizado já definido, preenchendo só `authClass` a partir do global. **Falha hoje** (`Expected 'alternateAuthenticate' / Actual 'authenticate'`) porque `loadDefaultAuthApp()` sobrescreve os dois incondicionalmente (`Endpoint.php:231-234`).
@@ -105,9 +105,9 @@ Rodado com `vendor/bin/codecept run unit` (suíte completa, mesma execução do 
 
 ---
 
-## 3. Routing/Controller — ✅ concluído (item 4 da `DIVIDA_TECNICA.md` corrigido)
+## 3. Routing/Controller — ✅ concluído (item 3 da `DIVIDA_TECNICA.md` corrigido)
 
-`tests/unit/Routing/EndpointControllerTest.php` — cobre `Endpoint::executeEndpoint()` / `validateExistenceEndpointExecutable()` (item 4 do `DIVIDA_TECNICA.md`), usando fixture `tests/unit/Fixtures/Controllers/FakeController.php` (`namespace Fixtures\Controllers;`) com métodos `staticNoParams()`, `staticWithRequiredParam(string $id)`, `nonStaticUsingThis()`, `nonStaticNotUsingThis()`. Endpoints são instanciados diretamente (`new Endpoint(...)`, construtor público) com `ignoreAuth = true`, isolando o módulo da resolução de autenticação (item 3).
+`tests/unit/Routing/EndpointControllerTest.php` — cobre `Endpoint::executeEndpoint()` / `validateExistenceEndpointExecutable()` (item 3 do `DIVIDA_TECNICA.md`), usando fixture `tests/unit/Fixtures/Controllers/FakeController.php` (`namespace Fixtures\Controllers;`) com métodos `staticNoParams()`, `staticWithRequiredParam(string $id)`, `nonStaticUsingThis()`, `nonStaticNotUsingThis()`. Endpoints são instanciados diretamente (`new Endpoint(...)`, construtor público) com `ignoreAuth = true`, isolando o módulo da resolução de autenticação (item 2).
 
 - [x] `testStaticMethodWithoutParamsExecutesNormally` — comportamento esperado
 - [x] `testMissingControllerClassThrowsException` — comportamento esperado
@@ -116,7 +116,7 @@ Rodado com `vendor/bin/codecept run unit` (suíte completa, mesma execução do 
 - [x] `testNonStaticControllerMethodIsRejectedEvenWhenItDoesNotUseThis` — comportamento esperado (corrigido): mesmo o caso mais perigoso do bug original (método não-estático que não usa `$this` e antes executava silenciosamente) agora é barrado antes da execução
 - [x] `testControllerMethodWithRequiredParamIsRejectedBeforeExecution` — comportamento esperado (corrigido): método com parâmetro obrigatório é barrado por `\Exception` clara (`"... must not have parameters"`) em vez de falhar em runtime com `ArgumentCountError`
 
-**Atualização — os 3 testes `[_bug]` foram reescritos para especificar o comportamento correto**: o usuário observou que os testes `[_bug]` originais só atestavam a existência do bug (documentavam o erro atual), sem validar como a validação deveria se comportar corretamente. Os 3 testes foram reescritos para exigir que `validateExistenceEndpointExecutable()` rejeite explicitamente métodos não-estáticos ou com parâmetros — e `Endpoint::validateExistenceEndpointExecutable()` (`Server/Routing/Endpoint.php`) foi corrigido de fato, adicionando `methodIsStatic()` e `methodHasNoParameters()` (já existentes em `TraitSuportValidationClass`, reaproveitados do mesmo jeito que já eram usados para a classe/método de auth em `authClassIAutenticatle()`). O item 4 da `DIVIDA_TECNICA.md` está resolvido.
+**Atualização — os 3 testes `[_bug]` foram reescritos para especificar o comportamento correto**: o usuário observou que os testes `[_bug]` originais só atestavam a existência do bug (documentavam o erro atual), sem validar como a validação deveria se comportar corretamente. Os 3 testes foram reescritos para exigir que `validateExistenceEndpointExecutable()` rejeite explicitamente métodos não-estáticos ou com parâmetros — e `Endpoint::validateExistenceEndpointExecutable()` (`Server/Routing/Endpoint.php`) foi corrigido de fato, adicionando `methodIsStatic()` e `methodHasNoParameters()` (já existentes em `TraitSuportValidationClass`, reaproveitados do mesmo jeito que já eram usados para a classe/método de auth em `authClassIAutenticatle()`). O item 3 da `DIVIDA_TECNICA.md` está resolvido.
 
 **Decisão anterior, ainda válida**: o sétimo teste cogitado (`testValidateExistenceEndpointExecutableNeverCallsMethodIsStaticOrMethodHasNoParameters`, baseado em inspeção de código-fonte via Reflection) continua descartado — não fazia sentido mesmo antes da correção, e faz ainda menos sentido agora que a validação existe de fato e é coberta comportamentalmente pelos 3 testes acima.
 
@@ -242,7 +242,7 @@ Implementado em `tests/unit/Routing/ApiManagerTest.php` — `_after()` apaga `Sr
 
 ## 10. Router/Request — getters restantes (`getBodyParams`, `getHeaders`, `getMethod`, `getUri`, `getFiles`) — ✅ concluído
 
-Adicionar a `tests/unit/Router/RequestTest.php`. Todos seguem o mesmo padrão já usado em `testGetAllMergedParamsMergesQueryAndBody`: instanciar via `makeRequestWithoutConstructor()` (contorna o acoplamento a superglobais do construtor, item 6 da `DIVIDA_TECNICA.md`) e usar `setPrivateProperty()` para popular o campo antes de ler pelo getter público — são getters simples, sem lógica além de retornar a propriedade.
+Adicionar a `tests/unit/Router/RequestTest.php`. Todos seguem o mesmo padrão já usado em `testGetAllMergedParamsMergesQueryAndBody`: instanciar via `makeRequestWithoutConstructor()` (contorna o acoplamento a superglobais do construtor, item 5 da `DIVIDA_TECNICA.md`) e usar `setPrivateProperty()` para popular o campo antes de ler pelo getter público — são getters simples, sem lógica além de retornar a propriedade.
 
 - [x] `testGetBodyParamsReturnsStoredBodyParams` — **faz/confronta**: seta `bodyParams` via Reflection, chama `getBodyParams()`. **Esperado**: retorna exatamente o array setado.
 - [x] `testGetHeadersReturnsStoredHeaders` — **faz/confronta**: idem, para `headers`. **Esperado**: idem.
@@ -311,14 +311,14 @@ Revisão método a método de toda a suíte (78 testes) para achar cenários/bra
 
 **Fora do escopo desta revisão** (achados descartados por não serem observáveis/valerem o esforço): o corpo do `foreach` de `Response::defineHeaders()` que efetivamente chama `header()` — confirmado empiricamente que `headers_list()` retorna vazio em CLI mesmo após `header()`, então esse branch não é verificável sem subir um servidor real; combinações parciais dos parâmetros default do construtor de `AuthenticationException`; e o branch de arquivo `.env` ilegível por permissão no `ConfigLoader` (frágil/dependente de ambiente).
 
-Suíte completa rodada 3 vezes com `--seed` aleatório diferente: `vendor/bin/codecept run unit` — **90 testes, 126 assertions, 4 falhas** (as mesmas `[_bug]` do item 2, fail-open, item 3 da `DIVIDA_TECNICA.md` ainda "Aberto") em todas as 3 execuções.
+Suíte completa rodada 3 vezes com `--seed` aleatório diferente: `vendor/bin/codecept run unit` — **90 testes, 126 assertions, 4 falhas** (as mesmas `[_bug]` do item 2, fail-open, item 2 da `DIVIDA_TECNICA.md` ainda "Aberto") em todas as 3 execuções.
 
 ---
 
 ## Fora do escopo desta suíte
 
-- **Item 2** (erros de grafia em métodos/namespaces): não é comportamento a verificar por teste automatizado — travar o typo num teste seria contraproducente. Tratado via *rename refactor* dedicado.
-- **Item 6** (`Request` acoplado a superglobais / `RequestDataInterface`): a refatoração ainda não foi implementada (por decisão explícita). Assim que existir, adicionar aqui um novo bloco "Router/Request — RequestDataInterface" com testes que mockam a interface em vez de usar Reflection.
-- **`Autoloader/Autoloader.php`** (item 1 da `DIVIDA_TECNICA.md`, código morto/inalcançável): removido do plano a pedido explícito do usuário; travar sua inalcançabilidade num teste ficaria no mesmo espírito descartado para o item 2 acima (inspecionar ausência de uso, não comportamento).
+- **Item 1** (erros de grafia em métodos/namespaces): não é comportamento a verificar por teste automatizado — travar o typo num teste seria contraproducente. Tratado via *rename refactor* dedicado.
+- **Item 5** (`Request` acoplado a superglobais / `RequestDataInterface`): a refatoração ainda não foi implementada (por decisão explícita). Assim que existir, adicionar aqui um novo bloco "Router/Request — RequestDataInterface" com testes que mockam a interface em vez de usar Reflection.
+- **`Autoloader/Autoloader.php`** (código morto/inalcançável): removido do plano a pedido explícito do usuário; travar sua inalcançabilidade num teste ficaria no mesmo espírito descartado para o item 1 acima (inspecionar ausência de uso, não comportamento). Não referencia mais um item numerado da `DIVIDA_TECNICA.md`, já que esse item foi removido de lá também.
 - **`AbstractAuthenticable::callAuthError()`**: método de contrato que hoje **nenhum ponto do core chama** — `Endpoint::authenticate()` lança `AuthenticationException` diretamente, sem passar por `callAuthError()`. Escrever um teste travando essa ausência de chamada seria inspecionar código-fonte, não comportamento observável; fica só como observação (possível inconsistência entre o contrato documentado em `CLAUDE.md` e o que o core realmente usa).
 - **`Endpoint::getRequestType()`**: implementado, mas nunca chamado em lugar nenhum do core (nem em produção, nem em teste) — mesmo raciocínio acima, não é candidato a teste automatizado, só a uma limpeza futura se confirmado que é código morto.

@@ -21,7 +21,7 @@ class RequestTest extends \Codeception\Test\Unit
     {
     }
 
-    // item 5 do DIVIDA_TECNICA.md: PATTERN_OR não tem \b no início, então "or" isolado em texto legítimo é apagado
+    // item 4 do DIVIDA_TECNICA.md: PATTERN_OR não tem \b no início, então "or" isolado em texto legítimo é apagado
     public function testIsolatedOrWordRemovedFromLegitimateText()
     {
         $result = $this->sanitize(['nome' => 'Rafael or Silva']);
@@ -29,7 +29,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('Rafael  Silva', $result['nome']);
     }
 
-    // item 5: qualquer palavra terminada em "or" tem o sufixo apagado, não só a palavra isolada "or"
+    // item 4: qualquer palavra terminada em "or" tem o sufixo apagado, não só a palavra isolada "or"
     public function testWordEndingInOrGetsTruncated()
     {
         $result = $this->sanitize(['profissao' => 'motor']);
@@ -37,7 +37,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('mot', $result['profissao']);
     }
 
-    // item 5: substantivos comuns em português terminados em "-or"/"-dor" são truncados da mesma forma
+    // item 4: substantivos comuns em português terminados em "-or"/"-dor" são truncados da mesma forma
     public function testCommonPtBrWordsEndingInOrAreTruncated()
     {
         $result = $this->sanitize([
@@ -51,7 +51,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('administrad', $result['c']);
     }
 
-    // item 5: "@" conta como fronteira de palavra, então e-mails começando com "user"/"admin" são corrompidos
+    // item 4: "@" conta como fronteira de palavra, então e-mails começando com "user"/"admin" são corrompidos
     public function testEmailStartingWithReservedWordIsCorrupted()
     {
         $result = $this->sanitize([
@@ -119,7 +119,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame(['a' => '1', 'b' => '2'], $request->getAllMergedParams());
     }
 
-    // item 5 (resolvido por remoção): a chamada a sanitizeParams() foi removida do construtor de Request,
+    // item 4 (resolvido por remoção): a chamada a sanitizeParams() foi removida do construtor de Request,
     // então valores que antes eram corrompidos (sufixo "-or", "@" após "user"/"admin", símbolos --/#/;/*)
     // agora chegam intactos em getQueryParams(), pois passam direto de $_GET sem qualquer sanitização.
     public function testQueryParamsArriveUnalteredNowThatSanitizationWasRemovedFromTheFlow()
@@ -209,7 +209,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame(['arquivo' => ['name' => 'foto.png']], $request->getFiles());
     }
 
-    // Request lê superglobais no construtor (item 6 do DIVIDA_TECNICA.md), então instanciamos sem passar por ele
+    // Request lê superglobais no construtor (item 5 do DIVIDA_TECNICA.md), então instanciamos sem passar por ele
     private function makeRequestWithoutConstructor(): Request
     {
         return (new ReflectionClass(Request::class))->newInstanceWithoutConstructor();

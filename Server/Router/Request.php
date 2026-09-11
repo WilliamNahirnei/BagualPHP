@@ -143,7 +143,7 @@ class Request implements InterfacePHPRequest, SQLInjectionPatterns {
      * @param array $params The request parameters.
      * @return array The sanitized parameters.
      * @deprecated Não utilize este método. Os patterns de SQLInjectionPatterns não têm `\b` no início
-     * (ver item 5 de DIVIDA_TECNICA.md), o que faz este método corromper silenciosamente valores legítimos
+     * (ver item 4 de DIVIDA_TECNICA.md), o que faz este método corromper silenciosamente valores legítimos
      * (ex.: "motor" -> "mot", "user@example.com" -> "@example.com"). A chamada a este método foi removida
      * do fluxo real de Request; o método permanece apenas para fins de teste de caracterização.
      */

@@ -103,7 +103,7 @@ class EndpointAuthenticateTest extends \Codeception\Test\Unit
         $this->makeEndpoint(FakeAuth::class, 'doesNotExist', false)->executeEndpoint();
     }
 
-    // [_bug] item 3 da DIVIDA_TECNICA.md (Aberto): especifica o comportamento CORRETO (fail-closed).
+    // [_bug] item 2 da DIVIDA_TECNICA.md (Aberto): especifica o comportamento CORRETO (fail-closed).
     // Falha hoje contra Endpoint::authenticate(), que retorna true (fail-open) neste caso.
     public function testEndpointWithoutAnyAuthClassConfiguredThrowsConfigurationException()
     {
@@ -114,7 +114,7 @@ class EndpointAuthenticateTest extends \Codeception\Test\Unit
         $this->makeEndpoint(null, null, false)->executeEndpoint();
     }
 
-    // [_bug] item 3 da DIVIDA_TECNICA.md (Aberto): mesmo espírito, authClass presente mas authMethod ausente.
+    // [_bug] item 2 da DIVIDA_TECNICA.md (Aberto): mesmo espírito, authClass presente mas authMethod ausente.
     // Falha hoje: authenticate() libera acesso porque a condição é um OU (empty($authClass) || empty($authMethod)).
     public function testAuthClassDefinedWithoutAuthMethodThrowsConfigurationException()
     {
@@ -123,7 +123,7 @@ class EndpointAuthenticateTest extends \Codeception\Test\Unit
         $this->makeEndpoint(FakeAuth::class, null, false)->executeEndpoint();
     }
 
-    // [_bug] item 3 da DIVIDA_TECNICA.md (Aberto): caso simétrico, authMethod presente mas authClass ausente.
+    // [_bug] item 2 da DIVIDA_TECNICA.md (Aberto): caso simétrico, authMethod presente mas authClass ausente.
     // Falha hoje pelo mesmo motivo do teste anterior.
     public function testAuthMethodDefinedWithoutAuthClassThrowsConfigurationException()
     {
@@ -134,7 +134,7 @@ class EndpointAuthenticateTest extends \Codeception\Test\Unit
         $this->makeEndpoint(null, 'authenticate', false)->executeEndpoint();
     }
 
-    // [_bug] item 3 da DIVIDA_TECNICA.md (Aberto): loadDefaultAuthApp() não deveria descartar um authMethod
+    // [_bug] item 2 da DIVIDA_TECNICA.md (Aberto): loadDefaultAuthApp() não deveria descartar um authMethod
     // customizado já definido quando só authClass está vazio. Falha hoje porque loadDefaultAuthApp()
     // sobrescreve authMethod incondicionalmente para o default ("authenticate").
     public function testLoadDefaultAuthAppPreservesCustomAuthMethodWhenAuthClassIsEmpty()

@@ -47,7 +47,7 @@ class EndpointControllerTest extends \Codeception\Test\Unit
         $endpoint->executeEndpoint();
     }
 
-    // item 4 do DIVIDA_TECNICA.md (corrigido): método não-estático é barrado por validateExistenceEndpointExecutable() antes da chamada, com mensagem clara
+    // item 3 do DIVIDA_TECNICA.md (corrigido): método não-estático é barrado por validateExistenceEndpointExecutable() antes da chamada, com mensagem clara
     public function testNonStaticControllerMethodIsRejectedBeforeExecution()
     {
         $endpoint = $this->makeEndpoint('nonStaticUsingThis');
@@ -58,7 +58,7 @@ class EndpointControllerTest extends \Codeception\Test\Unit
         $endpoint->executeEndpoint();
     }
 
-    // item 4 (corrigido): mesmo o caso mais perigoso do bug original — método não-estático que não usa $this e antes executava silenciosamente — agora é barrado antes da execução
+    // item 3 (corrigido): mesmo o caso mais perigoso do bug original — método não-estático que não usa $this e antes executava silenciosamente — agora é barrado antes da execução
     public function testNonStaticControllerMethodIsRejectedEvenWhenItDoesNotUseThis()
     {
         $endpoint = $this->makeEndpoint('nonStaticNotUsingThis');
@@ -69,7 +69,7 @@ class EndpointControllerTest extends \Codeception\Test\Unit
         $endpoint->executeEndpoint();
     }
 
-    // item 4 (corrigido): método com parâmetro obrigatório é barrado antes da chamada, em vez de falhar em runtime com ArgumentCountError
+    // item 3 (corrigido): método com parâmetro obrigatório é barrado antes da chamada, em vez de falhar em runtime com ArgumentCountError
     public function testControllerMethodWithRequiredParamIsRejectedBeforeExecution()
     {
         $endpoint = $this->makeEndpoint('staticWithRequiredParam');
@@ -80,7 +80,7 @@ class EndpointControllerTest extends \Codeception\Test\Unit
         $endpoint->executeEndpoint();
     }
 
-    // ignoreAuth = true isola o teste da resolução de autenticação (item 3 do DIVIDA_TECNICA.md), fora do escopo deste módulo
+    // ignoreAuth = true isola o teste da resolução de autenticação (item 2 do DIVIDA_TECNICA.md), fora do escopo deste módulo
     private function makeEndpoint(string $controllerMethod): Endpoint
     {
         return new Endpoint('GET', '/fake', FakeController::class, $controllerMethod, null, null, true);
