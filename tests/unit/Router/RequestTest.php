@@ -21,7 +21,7 @@ class RequestTest extends \Codeception\Test\Unit
     {
     }
 
-    // item 6 do DIVIDA_TECNICA.md: PATTERN_OR não tem \b no início, então "or" isolado em texto legítimo é apagado
+    // item 5 do DIVIDA_TECNICA.md: PATTERN_OR não tem \b no início, então "or" isolado em texto legítimo é apagado
     public function testIsolatedOrWordRemovedFromLegitimateText()
     {
         $result = $this->sanitize(['nome' => 'Rafael or Silva']);
@@ -29,7 +29,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('Rafael  Silva', $result['nome']);
     }
 
-    // item 6: qualquer palavra terminada em "or" tem o sufixo apagado, não só a palavra isolada "or"
+    // item 5: qualquer palavra terminada em "or" tem o sufixo apagado, não só a palavra isolada "or"
     public function testWordEndingInOrGetsTruncated()
     {
         $result = $this->sanitize(['profissao' => 'motor']);
@@ -37,7 +37,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('mot', $result['profissao']);
     }
 
-    // item 6: substantivos comuns em português terminados em "-or"/"-dor" são truncados da mesma forma
+    // item 5: substantivos comuns em português terminados em "-or"/"-dor" são truncados da mesma forma
     public function testCommonPtBrWordsEndingInOrAreTruncated()
     {
         $result = $this->sanitize([
@@ -51,7 +51,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('administrad', $result['c']);
     }
 
-    // item 6: "@" conta como fronteira de palavra, então e-mails começando com "user"/"admin" são corrompidos
+    // item 5: "@" conta como fronteira de palavra, então e-mails começando com "user"/"admin" são corrompidos
     public function testEmailStartingWithReservedWordIsCorrupted()
     {
         $result = $this->sanitize([
@@ -93,6 +93,22 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame('mot', $result['filtro']['sub']['cargo']);
     }
 
+    // comportamento esperado: sanitizeParams() só trata string/array; outros tipos passam intactos
+    public function testNonStringNonArrayValuesPassThroughUnchanged()
+    {
+        $result = $this->sanitize([
+            'idade' => 30,
+            'ativo' => true,
+            'nulo' => null,
+            'preco' => 12.5,
+        ]);
+
+        $this->assertSame(30, $result['idade']);
+        $this->assertTrue($result['ativo']);
+        $this->assertNull($result['nulo']);
+        $this->assertSame(12.5, $result['preco']);
+    }
+
     // comportamento esperado: getAllMergedParams() combina query params e body params num único array
     public function testGetAllMergedParamsMergesQueryAndBody()
     {
@@ -103,7 +119,7 @@ class RequestTest extends \Codeception\Test\Unit
         $this->assertSame(['a' => '1', 'b' => '2'], $request->getAllMergedParams());
     }
 
-    // item 6 (resolvido por remoção): a chamada a sanitizeParams() foi removida do construtor de Request,
+    // item 5 (resolvido por remoção): a chamada a sanitizeParams() foi removida do construtor de Request,
     // então valores que antes eram corrompidos (sufixo "-or", "@" após "user"/"admin", símbolos --/#/;/*)
     // agora chegam intactos em getQueryParams(), pois passam direto de $_GET sem qualquer sanitização.
     public function testQueryParamsArriveUnalteredNowThatSanitizationWasRemovedFromTheFlow()
@@ -129,7 +145,71 @@ class RequestTest extends \Codeception\Test\Unit
         $this->resetSingletonInstance();
     }
 
-    // Request lê superglobais no construtor (item 7 do DIVIDA_TECNICA.md), então instanciamos sem passar por ele
+    // comportamento esperado: o construtor real também popula method/uri a partir das superglobais
+    // (getBodyParams/getHeaders/getFiles dependem de php://input/$_FILES, mais difíceis de popular em
+    // CLI, então ficam cobertos só via Reflection nos testes isolados abaixo)
+    public function testMethodAndUriArePopulatedFromServerSuperglobalsThroughRealConstructor()
+    {
+        $originalServer = $_SERVER;
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/api/outra-rota';
+
+        $this->resetSingletonInstance();
+        $request = Request::getInstance();
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('/api/outra-rota', $request->getUri());
+
+        $_SERVER = $originalServer;
+        $this->resetSingletonInstance();
+    }
+
+    // comportamento esperado
+    public function testGetBodyParamsReturnsStoredBodyParams()
+    {
+        $request = $this->makeRequestWithoutConstructor();
+        $this->setPrivateProperty($request, 'bodyParams', ['b' => '2']);
+
+        $this->assertSame(['b' => '2'], $request->getBodyParams());
+    }
+
+    // comportamento esperado
+    public function testGetHeadersReturnsStoredHeaders()
+    {
+        $request = $this->makeRequestWithoutConstructor();
+        $this->setPrivateProperty($request, 'headers', ['Authorization' => 'Bearer token']);
+
+        $this->assertSame(['Authorization' => 'Bearer token'], $request->getHeaders());
+    }
+
+    // comportamento esperado
+    public function testGetMethodReturnsStoredMethod()
+    {
+        $request = $this->makeRequestWithoutConstructor();
+        $this->setPrivateProperty($request, 'method', 'POST');
+
+        $this->assertSame('POST', $request->getMethod());
+    }
+
+    // comportamento esperado
+    public function testGetUriReturnsStoredUri()
+    {
+        $request = $this->makeRequestWithoutConstructor();
+        $this->setPrivateProperty($request, 'uri', '/api/teste');
+
+        $this->assertSame('/api/teste', $request->getUri());
+    }
+
+    // comportamento esperado
+    public function testGetFilesReturnsStoredFiles()
+    {
+        $request = $this->makeRequestWithoutConstructor();
+        $this->setPrivateProperty($request, 'files', ['arquivo' => ['name' => 'foto.png']]);
+
+        $this->assertSame(['arquivo' => ['name' => 'foto.png']], $request->getFiles());
+    }
+
+    // Request lê superglobais no construtor (item 6 do DIVIDA_TECNICA.md), então instanciamos sem passar por ele
     private function makeRequestWithoutConstructor(): Request
     {
         return (new ReflectionClass(Request::class))->newInstanceWithoutConstructor();

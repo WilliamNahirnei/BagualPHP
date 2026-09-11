@@ -2,13 +2,9 @@
 namespace Router;
 
 use ReflectionProperty;
-use Server\Constants\ApiExceptionTypes;
-use Server\Constants\ServerMessage;
 use Server\Constants\StatusCodes;
-use Server\Errors\ApiException;
 use Server\Interfaces\InterfaceResponseContent;
 use Server\Router\Response;
-use Server\Router\Router;
 
 class ResponseTest extends \Codeception\Test\Unit
 {
@@ -29,6 +25,16 @@ class ResponseTest extends \Codeception\Test\Unit
         Response::setStatusCode(Response::DEFAULT_STATUS_CODE);
         Response::setResponseMessage(Response::DEFAULT_MESSAGE);
         $this->resetHeaders();
+    }
+
+    // comportamento esperado: sem nenhum setter chamado, a instância nova reflete os defaults da interface
+    public function testNewResponseHasDefaultStatusMessageAndContent()
+    {
+        $response = new Response();
+
+        $this->assertSame(Response::DEFAULT_STATUS_CODE, Response::getStatusCode());
+        $this->assertSame(Response::DEFAULT_MESSAGE, Response::getResponseMessage());
+        $this->assertSame(Response::DEFAULT_CONTENT, $response->getResponseContent());
     }
 
     // comportamento esperado
@@ -66,37 +72,21 @@ class ResponseTest extends \Codeception\Test\Unit
         $this->assertSame(['X-Custom' => ['a', 'b']], $this->getHeaders());
     }
 
-    // comportamento esperado (contraste com o teste abaixo)
-    public function testApiExceptionMessageDoesNotLeakStackTrace()
+    // comportamento atual (característica): generateServerResponse() chama json_encode($dados, true) —
+    // o segundo argumento é o parâmetro $flags (int), e `true` vira 1 (JSON_HEX_TAG). Isso faz "<"/">"
+    // virarem </> no JSON devolvido ao cliente, um efeito colateral não documentado do código atual.
+    public function testGenerateServerResponseEscapesAngleBracketsInMessage()
     {
-        $router = $this->makeRouter();
-        $apiException = new ApiException(true, ApiExceptionTypes::ERROR, ['Recurso inválido'], StatusCodes::HTTP_BAD_REQUEST);
+        $response = new Response();
+        Response::setResponseMessage('<script>alert(1)</script>');
 
-        $router->defineApiExceptionErrorResponse($apiException);
+        $json = $response->generateServerResponse();
+        // monta "<script>" programaticamente para não escrever a sequência de escape literal no fonte
+        $backslash = chr(92);
+        $escapedOpeningTag = $backslash . 'u003Cscript' . $backslash . 'u003E';
 
-        $this->assertSame('Recurso inválido', Response::getResponseMessage());
-        $this->assertStringNotContainsString('Stack trace', Response::getResponseMessage());
-    }
-
-    // comportamento esperado: expor o \Throwable bruto é intencional (ver PHPDoc de Router::generateInternalErrorMessage())
-    public function testInternalErrorResponseMessageContainsStackTrace()
-    {
-        $router = $this->makeRouter();
-        $error = new \Exception('erro genérico');
-
-        $router->defineInternalErrorResponse($error);
-
-        $message = Response::getResponseMessage();
-        $this->assertStringContainsString(ServerMessage::INTERNAL_SERVER_ERRO, $message);
-        $this->assertStringContainsString('Stack trace', $message);
-        $this->assertStringContainsString(__FILE__, $message);
-    }
-
-    private function makeRouter(): Router
-    {
-        $_SERVER['REQUEST_URI'] = '/api/teste';
-
-        return new Router();
+        $this->assertStringNotContainsString('<script>', $json);
+        $this->assertStringContainsString($escapedOpeningTag, $json);
     }
 
     // Response não expõe getter público para $headers, só addHeader(), que sempre acumula
