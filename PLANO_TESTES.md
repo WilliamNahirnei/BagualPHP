@@ -4,7 +4,7 @@ Plano de testes automatizados para o framework, organizado por módulo. Ferramen
 
 ## Ferramenta e estrutura
 
-- **Codeception `^4.2`** — usa PHPUnit por baixo (`Codeception\Test\Unit` estende `PHPUnit\Framework\TestCase`), então os desafios de testabilidade já mapeados continuam valendo (estado estático global em `Route`/`Response`/`ConfigLoader`, `Request` lendo superglobais no construtor — contornado via `newInstanceWithoutConstructor()` + Reflection até a refatoração do item 7 do `DIVIDA_TECNICA.md` existir).
+- **Codeception `^4.2`** — usa PHPUnit por baixo (`Codeception\Test\Unit` estende `PHPUnit\Framework\TestCase`), então os desafios de testabilidade já mapeados continuam valendo (estado estático global em `Route`/`Response`/`ConfigLoader`, `Request` lendo superglobais no construtor — contornado via `newInstanceWithoutConstructor()` + Reflection até a refatoração do item 6 do `DIVIDA_TECNICA.md` existir).
 - Suíte usada para os testes deste plano: **`unit`** — testa as classes do framework isoladamente, no mesmo processo, sem servidor HTTP. As suítes `functional` e `acceptance` foram geradas pelo bootstrap padrão do Codeception, mas não são usadas por este plano (ver explicação abaixo).
 - **Status: já instalado e inicializado.** `require-dev` em `composer.json`: `codeception/codeception: ^4.2`, `codeception/module-asserts: ^2.0` (a versão `3.x` exige PHP `^8.2`, incompatível com o `>=7.4` deste projeto), `codeception/module-phpbrowser: ^1.0.0` (adicionado automaticamente pelo `codecept bootstrap` para a suíte `acceptance`).
 - Execução: `vendor/bin/codecept run unit`.
@@ -42,7 +42,7 @@ BagualPHP/
 
 - **`unit`**: chama a classe diretamente no processo de teste (sem rede, sem servidor). É o nível certo para algo como `Request::sanitizeParams()` — um método `private` que só depende de um array de entrada e do `preg_replace` dos patterns, sem tocar em nada externo ao framework.
 - **`functional`**: emula requisições dentro do mesmo processo via um módulo de framework (Symfony2, Laravel5 etc.). O BagualPHP não é um dos frameworks suportados nativamente pelo Codeception, então essa suíte ficaria sem módulo configurado a menos que se escreva um módulo customizado que instancie `Router` manualmente simulando superglobais — overhead desnecessário para testar um método isolado.
-- **`acceptance`** (módulo `PhpBrowser`): testa a aplicação de fora, via HTTP real, exigindo um servidor rodando (`php -S localhost:8000`). Faz sentido para testes de ponta a ponta do `Router` (ex.: bater numa rota real e conferir o vazamento de stack trace do item 5), mas é lento e desnecessário para verificar se `"motor"` vira `"mot"`.
+- **`acceptance`** (módulo `PhpBrowser`): testa a aplicação de fora, via HTTP real, exigindo um servidor rodando (`php -S localhost:8000`). Faz sentido para testes de ponta a ponta do `Router` (ex.: bater numa rota real e conferir o conteúdo de um erro 500 genérico), mas é lento e desnecessário para verificar se `"motor"` vira `"mot"`.
 
 Legenda da checklist: `[_bug]` = teste ligado a um item do `DIVIDA_TECNICA.md` que já especifica o **comportamento correto esperado** (não o comportamento atual). Esses testes devem falhar contra o código de hoje — a falha é o que evidencia que o bug existe — e só passam quando o item correspondente da dívida técnica é de fato corrigido. Sem marcação = teste de **comportamento esperado** que já é o funcionamento correto atual (não é bug, deve ser preservado).
 
@@ -50,9 +50,9 @@ Legenda da checklist: `[_bug]` = teste ligado a um item do `DIVIDA_TECNICA.md` q
 
 ## 1. Router/Request — ✅ concluído
 
-`tests/unit/Router/RequestTest.php` — cobre `Request::sanitizeParams()` (item 6 do `DIVIDA_TECNICA.md`).
+`tests/unit/Router/RequestTest.php` — cobre `Request::sanitizeParams()` (item 5 do `DIVIDA_TECNICA.md`).
 
-**Atualização (item 6 resolvido por remoção)**: a chamada a `sanitizeParams()` foi removida do construtor de `Request` (o método permanece na classe, marcado `@deprecated`, só para os testes de caracterização abaixo continuarem exercitando o comportamento antigo isoladamente). Os 4 testes `[_bug]` continuam válidos como testes de caracterização do método `sanitizeParams()` em si (que ainda existe e ainda tem o bug de pattern na causa raiz). Foi adicionado um novo teste de comportamento esperado que confirma que o fluxo real (via `Request::getInstance()`) não sanitiza mais nada.
+**Atualização (item 5 resolvido por remoção)**: a chamada a `sanitizeParams()` foi removida do construtor de `Request` (o método permanece na classe, marcado `@deprecated`, só para os testes de caracterização abaixo continuarem exercitando o comportamento antigo isoladamente). Os 4 testes `[_bug]` continuam válidos como testes de caracterização do método `sanitizeParams()` em si (que ainda existe e ainda tem o bug de pattern na causa raiz). Foi adicionado um novo teste de comportamento esperado que confirma que o fluxo real (via `Request::getInstance()`) não sanitiza mais nada.
 
 - [x] `testIsolatedOrWordRemovedFromLegitimateText` `[_bug]` — `"Rafael or Silva"` → `"Rafael  Silva"` (testa `sanitizeParams()` isolado via Reflection, método não é mais chamado no fluxo real)
 - [x] `testWordEndingInOrGetsTruncated` `[_bug]` — `"motor"` → `"mot"` (idem)
@@ -126,15 +126,21 @@ Implementado em `tests/unit/Routing/EndpointControllerTest.php`. Rodado com `ven
 
 ---
 
-## 4. Router/Response
+## 4. Router/Response — ✅ concluído
 
-`tests/unit/Router/ResponseTest.php` — cobre `Response` e `Router::generateInternalErrorMessage()` (item 5 do `DIVIDA_TECNICA.md`).
+`tests/unit/Router/ResponseTest.php` — cobre `Response` e `Router::generateInternalErrorMessage()`.
 
-- [ ] `testMountCompleteResponseReturnsMessageAndDataKeys` — comportamento esperado
-- [ ] `testGenerateServerResponseSetsHttpStatusCode` — comportamento esperado
-- [ ] `testAddHeaderAccumulatesMultipleValuesForSameHeader` — comportamento esperado
-- [ ] `testApiExceptionMessageDoesNotLeakStackTrace` — comportamento esperado (contraste com o item abaixo)
-- [ ] `testInternalErrorResponseMessageContainsStackTrace` `[_bug]` — `defineInternalErrorResponse()` com um `\Throwable` genérico gera mensagem contendo `"Stack trace"` e caminho de arquivo, vazando informação interna no JSON de resposta
+- [x] `testMountCompleteResponseReturnsMessageAndDataKeys` — comportamento esperado
+- [x] `testGenerateServerResponseSetsHttpStatusCode` — comportamento esperado
+- [x] `testAddHeaderAccumulatesMultipleValuesForSameHeader` — comportamento esperado
+- [x] `testApiExceptionMessageDoesNotLeakStackTrace` — comportamento esperado (contraste com o item abaixo)
+- [x] `testInternalErrorResponseMessageContainsStackTrace` — comportamento esperado: `defineInternalErrorResponse()` com um `\Throwable` genérico gera mensagem contendo `"Stack trace"` e caminho de arquivo. Isso é intencional — o BagualPHP é uma biblioteca/skeleton consumida por outros projetos e não deve decidir por conta própria uma política de ocultação de erros; cabe ao desenvolvedor que usa o framework tratar/sanitizar erros não capturados antes de expor a API em produção.
+
+**Estado estático entre testes**: `Response` guarda `$statusCode`, `$responseMessage` e `$headers` como propriedades `private static` (só `$responseContent` é de instância) — `new Response()` a cada teste não as reseta. `_before()`/`_after()` restauram `$statusCode`/`$responseMessage` para o default usando os próprios setters públicos (`Response::setStatusCode()`/`setResponseMessage()`); só `$headers` não tem setter/reset público (apenas `addHeader()`, que sempre acumula), então esse único caso usa um método privado do arquivo de teste (`resetHeaders()`/`headersProperty()`) que manipula a propriedade via Reflection.
+
+Os testes `testApiExceptionMessageDoesNotLeakStackTrace` e `testInternalErrorResponseMessageContainsStackTrace` instanciam um `Router` real e chamam os métodos públicos `defineApiExceptionErrorResponse()`/`defineInternalErrorResponse()` — o mesmo caminho usado pelo `catch` de `executeRequest()` — em vez de invocar `generateInternalErrorMessage()` (privado) via Reflection.
+
+Implementado em `tests/unit/Router/ResponseTest.php`. Rodado com `vendor/bin/codecept run unit` (suíte completa): **37 testes, 61 assertions, 4 falhas** — as 4 falhas são os testes `[_bug]` do item 2 (item 3 da `DIVIDA_TECNICA.md`, ainda "Aberto"), não relacionadas a este item.
 
 ---
 

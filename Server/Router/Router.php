@@ -248,6 +248,8 @@ class Router implements InterfacePHPRequest, InterfaceRequestMethods
     /**
      * Generates an internal error message.
      *
+     * Concatenating $error is intentional: it exposes the full \Throwable (message, file, line, stack trace) via __toString().
+     *
      * @param \Throwable $error The error.
      * @return string The internal error message.
      */
