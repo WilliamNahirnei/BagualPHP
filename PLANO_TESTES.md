@@ -144,16 +144,7 @@ Implementado em `tests/unit/Router/ResponseTest.php`. Rodado com `vendor/bin/cod
 
 ---
 
-## 5. Autoloader
-
-`tests/unit/AutoloaderTest.php` — cobre a inalcançabilidade de `Autoloader\Autoloader` (item 1 do `DIVIDA_TECNICA.md`).
-
-- [ ] `testAutoloaderClassIsNotRegisteredViaSplAutoloadFunctions` `[_bug]` — nenhum callback registrado vem do namespace `Autoloader\` após o bootstrap padrão via Composer
-- [ ] `testAutoloaderNamespaceIsAbsentFromComposerPsr4Map` `[_bug]` — `Autoloader\\` não consta em `composer.json` → `autoload.psr-4`
-
----
-
 ## Fora do escopo desta suíte
 
 - **Item 2** (erros de grafia em métodos/namespaces): não é comportamento a verificar por teste automatizado — travar o typo num teste seria contraproducente. Tratado via *rename refactor* dedicado.
-- **Item 7** (`Request` acoplado a superglobais / `RequestDataInterface`): a refatoração ainda não foi implementada (por decisão explícita). Assim que existir, adicionar aqui um novo bloco "Router/Request — RequestDataInterface" com testes que mockam a interface em vez de usar Reflection.
+- **Item 6** (`Request` acoplado a superglobais / `RequestDataInterface`): a refatoração ainda não foi implementada (por decisão explícita). Assim que existir, adicionar aqui um novo bloco "Router/Request — RequestDataInterface" com testes que mockam a interface em vez de usar Reflection.
