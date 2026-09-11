@@ -54,9 +54,7 @@ class Request implements InterfacePHPRequest, SQLInjectionPatterns {
      * Initializes the request data from the global PHP variables.
      */
     private function __construct() {
-        // $this->queryParams = $this->sanitizeParams($_GET); // sanitizeParams() removido do fluxo - ver item 6 de DIVIDA_TECNICA.md
         $this->queryParams = $_GET;
-        // $this->bodyParams = $this->sanitizeParams(json_decode(file_get_contents('php://input'), true) ?? []); // sanitizeParams() removido do fluxo - ver item 6 de DIVIDA_TECNICA.md
         $this->bodyParams = json_decode(file_get_contents('php://input'), true) ?? [];
         $this->headers = getallheaders();
         $this->method = $_SERVER[self::REQUEST_METHOD];
@@ -145,7 +143,7 @@ class Request implements InterfacePHPRequest, SQLInjectionPatterns {
      * @param array $params The request parameters.
      * @return array The sanitized parameters.
      * @deprecated Não utilize este método. Os patterns de SQLInjectionPatterns não têm `\b` no início
-     * (ver item 6 de DIVIDA_TECNICA.md), o que faz este método corromper silenciosamente valores legítimos
+     * (ver item 5 de DIVIDA_TECNICA.md), o que faz este método corromper silenciosamente valores legítimos
      * (ex.: "motor" -> "mot", "user@example.com" -> "@example.com"). A chamada a este método foi removida
      * do fluxo real de Request; o método permanece apenas para fins de teste de caracterização.
      */
